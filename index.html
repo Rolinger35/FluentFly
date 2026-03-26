@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LexiLearn Pro | Stable Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --accent: #6366f1; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; 
+            --text-dim: #94a3b8; --success: #10b981; --danger: #ef4444; --glass: rgba(30, 41, 59, 0.9);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 110px; overflow-x: hidden; }
+
+        /* NAVIGATION */
+        nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 12px 5px; border-top: 1px solid rgba(255,255,255,0.1); z-index: 2000; }
+        .nav-btn { background: transparent; border: none; color: var(--text-dim); display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; font-weight: 700; gap: 5px; flex: 1; cursor: pointer; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn i { font-size: 1.2rem; }
+
+        .container { width: 92%; max-width: 600px; margin: 20px auto; display: none; }
+        .container.active { display: block; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px; position: relative; }
+
+        /* COMMON UI */
+        .back-link { color: var(--text-dim); font-size: 0.8rem; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px; cursor: pointer; font-weight: 600; }
+        .mode-toggle { display: flex; background: #0f172a; padding: 4px; border-radius: 12px; margin: 0 auto 20px; border: 1px solid #334155; width: fit-content; }
+        .mode-btn { padding: 8px 16px; border-radius: 9px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-weight: 700; font-size: 0.8rem; }
+        .mode-btn.active { background: var(--accent); color: white; }
+        input, select { width: 100%; background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 12px; color: white; margin-bottom: 10px; font-size: 1rem; }
+        .btn-accent { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; width: 100%; text-transform: uppercase; cursor: pointer; }
+        
+        /* FLASHCARDS */
+        .flash-scene { width: 100%; height: 280px; perspective: 1000px; margin: 15px 0; }
+        .flash-card { width: 100%; height: 100%; position: relative; transition: transform 0.4s; transform-style: preserve-3d; cursor: pointer; }
+        .flash-card.is-flipped { transform: rotateY(180deg); }
+        .flash-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; padding: 25px; border-radius: 20px; text-align: center; }
+        .flash-front { background: var(--accent); color: white; }
+        .flash-back { background: #4338ca; color: white; transform: rotateY(180deg); }
+
+        /* MATCHING */
+        #mBoard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .match-item { background: #1e293b; padding: 15px; border-radius: 12px; text-align: center; border: 2px solid #334155; font-size: 0.85rem; min-height: 80px; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        #mTimer { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin-bottom: 10px; display: block; }
+
+        /* MODAL */
+        #modalOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 4000; }
+        .modal-content { background: var(--card-bg); width: 85%; max-width: 400px; padding: 30px; border-radius: 25px; border: 1px solid var(--accent); text-align: center; }
+        #modalOverlay.open { display: flex; }
+
+        /* PROGRESS BAR */
+        .bar-wrap { background: #0f172a; height: 10px; border-radius: 10px; overflow: hidden; margin: 15px 0; }
+        .bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
+
+        /* TEST UI */
+        .test-q { margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #334155; text-align: left; }
+        .mc-grid { display: grid; gap: 8px; margin-top: 10px; }
+        .mc-btn { background: #0f172a; border: 1px solid #334155; color: white; padding: 12px; border-radius: 10px; text-align: left; }
+        .mc-btn.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.2); }
+
+        /* KEYBOARD */
+        #kb-container { position: fixed; bottom: -100%; left: 0; right: 0; background: #020617; padding: 10px 5px 35px; z-index: 3000; transition: 0.3s; border-top: 2px solid var(--accent); }
+        #kb-container.open { bottom: 0; }
+        .kb-row { display: flex; justify-content: center; gap: 4px; margin-bottom: 6px; }
+        .key { background: #1e293b; color: white; border: none; flex: 1; padding: 16px 0; border-radius: 6px; font-weight: bold; max-width: 45px; }
+        .key.wide { max-width: 145px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <button class="nav-btn active" id="btn-glossary" onclick="app.tab('glossary')"><i class="fa-solid fa-folder"></i>Sett</button>
+    <button class="nav-btn" id="btn-flash" onclick="app.tab('flash')"><i class="fa-solid fa-clone"></i>Kort</button>
+    <button class="nav-btn" id="btn-match" onclick="app.tab('match')"><i class="fa-solid fa-bolt"></i>Match</button>
+    <button class="nav-btn" id="btn-mastery" onclick="app.tab('mastery')"><i class="fa-solid fa-graduation-cap"></i>Lær</button>
+    <button class="nav-btn" id="btn-test" onclick="app.tab('test')"><i class="fa-solid fa-vial"></i>Test</button>
+</nav>
+
+<div id="modalOverlay">
+    <div class="modal-content">
+        <div style="font-size: 3rem;">⚡</div>
+        <h2 id="modalTitle">Fullført!</h2>
+        <p id="modalDesc">Din tid:</p>
+        <h1 id="modalValue" style="color: var(--success); margin: 10px 0;">0.0s</h1>
+        <button class="btn-accent" id="modalRetryBtn">Spill Igjen</button>
+        <button class="btn-accent" style="background:#334155; margin-top:10px;" onclick="app.closeModal(); app.resetUI('match');">Meny</button>
+    </div>
+</div>
+
+<div id="v-glossary" class="container active">
+    <div class="card">
+        <h2>Mine Sett</h2>
+        <div style="display:flex; gap:8px; margin-bottom:15px;">
+            <input type="text" id="newSet" placeholder="Nytt settnavn...">
+            <button class="btn-accent" style="width:60px" onclick="app.addSet()"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div id="setGrid"></div>
+        <div class="card" style="background:rgba(0,0,0,0.2); padding:15px;">
+            <select id="setPick"></select>
+            <input type="text" id="wIn" placeholder="Begrep">
+            <input type="text" id="dIn" placeholder="Forklaring">
+            <button class="btn-accent" onclick="app.addWord()">Legg til ord</button>
+        </div>
+        <div id="wordDisplay"></div>
+    </div>
+</div>
+
+<div id="v-flash" class="container">
+    <div class="card" style="text-align:center;">
+        <select id="fSel" onchange="app.initFlash()"></select>
+        <div class="flash-scene">
+            <div class="flash-card" id="fCard" onclick="this.classList.toggle('is-flipped')">
+                <div class="flash-face flash-front" id="fFront">Velg et sett</div>
+                <div class="flash-face flash-back" id="fBack">...</div>
+            </div>
+        </div>
+        <button class="btn-accent" onclick="app.fNext()">Neste Kort</button>
+    </div>
+</div>
+
+<div id="v-match" class="container">
+    <div class="card" style="text-align:center;">
+        <div id="mPre">
+            <h2>Hurtigmatch</h2>
+            <select id="matchSel"></select>
+            <button class="btn-accent" onclick="app.startMatch()">Start Spill</button>
+        </div>
+        <div id="mGame" style="display:none;">
+            <span class="back-link" onclick="app.resetUI('match')"><i class="fa-solid fa-chevron-left"></i> Tilbake</span>
+            <div id="mTimer">0.0s</div>
+            <div id="mBoard"></div>
+        </div>
+    </div>
+</div>
+
+<div id="v-mastery" class="container">
+    <div class="card" style="text-align:center;">
+        <div id="mastPre">
+            <h2>Mestring</h2>
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="mBtnW" onclick="app.setMMode('word')">Svar med ord</button>
+                <button class="mode-btn" id="mBtnD" onclick="app.setMMode('desc')">Svar med def.</button>
+            </div>
+            <select id="mSel"></select>
+            <button class="btn-accent" onclick="app.startMast()">Start Læring</button>
+        </div>
+        <div id="mastActive" style="display:none;">
+            <span class="back-link" onclick="app.resetUI('mastery')" style="display:block; text-align:left;"><i class="fa-solid fa-chevron-left"></i> Avslutt</span>
+            <div class="bar-wrap"><div id="mBar" class="bar-fill"></div></div>
+            <h3 id="mQ" style="margin:20px 0;"></h3>
+            <input type="text" id="mAns" placeholder="Svar..." readonly onclick="app.openKB('mAns')">
+            <p id="mFeed" style="font-weight:bold; min-height:20px;"></p>
+        </div>
+    </div>
+</div>
+
+<div id="v-test" class="container">
+    <div class="card" style="text-align:center;">
+        <div id="tPre">
+            <h2>Sluttest</h2>
+            <select id="tSel"></select>
+            <button class="btn-accent" onclick="app.startTest()">Generer Test</button>
+        </div>
+        <div id="tMain" style="display:none;">
+            <span class="back-link" onclick="app.resetUI('test')" style="display:block; text-align:left;"><i class="fa-solid fa-chevron-left"></i> Avbryt</span>
+            <div id="tQs"></div>
+            <button class="btn-accent" onclick="app.gradeTest()">Lever Besvarelse</button>
+            <div id="tResult" style="margin-top:20px;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="kb-container">
+    <div id="kb-rows"></div>
+    <div class="kb-row">
+        <button class="key wide" onclick="app.kbFunc('back')">Slett</button>
+        <button class="key wide" onclick="app.kbFunc('space')">Mellomrom</button>
+        <button class="key accent" style="background:var(--accent); max-width:90px;" onclick="app.kbFunc('enter')">OK</button>
+    </div>
+</div>
+
+<script>
+const app = {
+    lib: JSON.parse(localStorage.getItem('lexi_pro_v3')) || {},
+    active: null, fP: [], fI: 0, mPool: [], mMode: 'word', currM: null, tData: [], kbTarget: null, mS: null,
+    matchTimer: null, matchTime: 0, mMatches: 0,
+
+    save() { localStorage.setItem('lexi_pro_v3', JSON.stringify(this.lib)); this.drops(); },
+
+    drops() {
+        ['setPick', 'fSel', 'mSel', 'tSel', 'matchSel'].forEach(id => {
+            const el = document.getElementById(id); if(!el) return;
+            el.innerHTML = (id !== 'setPick') ? '<option value="all">Alle sett kombinert</option>' : '<option value="">-- Velg sett --</option>';
+            Object.keys(this.lib).forEach(k => el.innerHTML += `<option value="${k}">${k}</option>`);
+        });
+    },
+
+    tab(id) {
+        document.querySelectorAll('.container').forEach(e => e.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(e => e.classList.remove('active'));
+        document.getElementById('v-'+id).classList.add('active');
+        document.getElementById('btn-'+id).classList.add('active');
+        this.resetUI(id);
+        if(id === 'glossary') this.render();
+    },
+
+    resetUI(mode) {
+        clearInterval(this.matchTimer);
+        document.getElementById('kb-container').classList.remove('open');
+        this.closeModal();
+        if(mode === 'match') { document.getElementById('mPre').style.display='block'; document.getElementById('mGame').style.display='none'; }
+        if(mode === 'mastery') { document.getElementById('mastPre').style.display='block'; document.getElementById('mastActive').style.display='none'; }
+        if(mode === 'test') { document.getElementById('tPre').style.display='block'; document.getElementById('tMain').style.display='none'; document.getElementById('tResult').innerHTML=''; }
+        this.drops();
+    },
+
+    /* GLOSSARY */
+    addSet() {
+        const v = document.getElementById('newSet').value.trim();
+        if(v && !this.lib[v]) { this.lib[v] = []; this.active = v; this.save(); this.render(); document.getElementById('newSet').value=''; }
+    },
+    render() {
+        const g = document.getElementById('setGrid'); if(!g) return; g.innerHTML='';
+        Object.keys(this.lib).forEach(k => {
+            g.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; border-left:5px solid ${this.active===k?'var(--accent)':'transparent'}">
+                <span onclick="app.active='${k}';app.render();app.showW()">${k} (${this.lib[k].length} ord)</span>
+                <i class="fa-solid fa-trash" style="color:var(--danger)" onclick="if(confirm('Slette?')){delete app.lib['${k}'];app.save();app.render();app.showW();}"></i></div>`;
+        });
+    },
+    addWord() {
+        const w = document.getElementById('wIn').value.trim(), d = document.getElementById('dIn').value.trim(), s = document.getElementById('setPick').value;
+        if(w && d && s) { this.lib[s].push({word:w, desc:d, mastery:0}); this.save(); this.render(); this.showW(); document.getElementById('wIn').value=''; document.getElementById('dIn').value=''; }
+    },
+    showW() {
+        const c = document.getElementById('wordDisplay'); if(!c) return; c.innerHTML='';
+        if(this.active && this.lib[this.active]) this.lib[this.active].forEach((x,i) => {
+            c.innerHTML += `<div style="font-size:0.8rem; padding:8px; border-bottom:1px solid #334155; display:flex; justify-content:space-between"><span><b>${x.word}</b></span><i class="fa-solid fa-xmark" onclick="app.lib['${app.active}'].splice(${i},1);app.save();app.render();app.showW();"></i></div>`;
+        });
+    },
+
+    /* FLASHCARDS */
+    initFlash() {
+        const s = document.getElementById('fSel').value;
+        this.fP = s === 'all' ? Object.values(this.lib).flat() : this.lib[s] || [];
+        this.fI=0; if(this.fP.length) this.fShow();
+    },
+    fShow() {
+        const card = document.getElementById('fCard'); card.classList.remove('is-flipped');
+        setTimeout(() => { document.getElementById('fFront').innerText = this.fP[this.fI]?.word || "Tomt"; document.getElementById('fBack').innerText = this.fP[this.fI]?.desc || "..."; }, 200);
+    },
+    fNext() { if(this.fP.length) { this.fI=(this.fI+1)%this.fP.length; this.fShow(); } },
+
+/* MATCH LOGIKK MED RASKERE POP-UP */
+startMatch() {
+    const s = document.getElementById('matchSel').value;
+    const p = s === 'all' ? Object.values(this.lib).flat() : this.lib[s] || [];
+    if(p.length < 4) return alert("Legg til minst 4 ord først!");
+
+    document.getElementById('mPre').style.display='none'; 
+    document.getElementById('mGame').style.display='block';
+    const b = document.getElementById('mBoard'); b.innerHTML='';
+    
+    this.matchTime = 0; this.mMatches = 0; this.mS = null;
+    document.getElementById('mTimer').innerText = "0.0s";
+    document.getElementById('mTimer').style.color = 'var(--accent)';
+
+    clearInterval(this.matchTimer);
+    this.matchTimer = setInterval(() => {
+        this.matchTime += 0.1;
+        document.getElementById('mTimer').innerText = this.matchTime.toFixed(1) + "s";
+    }, 100);
+
+    let subset = [...p].sort(()=>.5-Math.random()).slice(0,4);
+    let items = []; subset.forEach(x => { 
+        items.push({text: x.word, id: x.word}); 
+        items.push({text: x.desc, id: x.word}); 
+    });
+    items.sort(()=>.5-Math.random()).forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'match-item';
+        div.innerText = item.text;
+        div.onclick = () => app.handleMatchClick(div, item.id);
+        b.appendChild(div);
+    });
+},
+
+handleMatchClick(el, id) {
+    if (el.style.visibility === 'hidden') return;
+    el.style.borderColor = 'var(--accent)';
+
+    if (!this.mS) {
+        this.mS = { el, id };
+    } else {
+        if (this.mS.id === id && this.mS.el !== el) {
+            // CORRECT
+            el.style.visibility = 'hidden';
+            this.mS.el.style.visibility = 'hidden';
+            this.mMatches++;
+            // Sjekker om spillet er slutt
+            if (this.mMatches === 4) this.endMatch();
+        } else {
+            // WRONG - PENALTY
+            const first = this.mS.el;
+            this.matchTime += 2.0; // Straff
+            document.getElementById('mTimer').style.color = 'var(--danger)';
+            el.style.borderColor = 'var(--danger)';
+            first.style.borderColor = 'var(--danger)';
+            
+            setTimeout(() => {
+                el.style.borderColor = '#334155';
+                first.style.borderColor = '#334155';
+                document.getElementById('mTimer').style.color = 'var(--accent)';
+            }, 400);
+        }
+        this.mS = null;
+    }
+},
+
+endMatch() {
+    // Stopper timeren umiddelbart
+    clearInterval(this.matchTimer);
+    
+    // Oppdaterer modalen med slutttiden
+    document.getElementById('modalValue').innerText = this.matchTime.toFixed(1) + "s";
+    
+    // Viser pop-upen nesten med en gang (50ms for å la siste animasjon fullføres)
+    setTimeout(() => {
+        document.getElementById('modalOverlay').classList.add('open');
+    }, 50); 
+},
+    /* MASTERY */
+    setMMode(m) { this.mMode=m; document.getElementById('mBtnW').className=m==='word'?'mode-btn active':'mode-btn'; document.getElementById('mBtnD').className=m==='desc'?'mode-btn active':'mode-btn'; },
+    startMast() {
+        const s = document.getElementById('mSel').value;
+        this.mPool = s === 'all' ? Object.values(this.lib).flat() : this.lib[s] || [];
+        if(!this.mPool.length) return alert("Settet er tomt");
+        document.getElementById('mastPre').style.display='none'; document.getElementById('mastActive').style.display='block'; this.nextMast();
+    },
+    nextMast() {
+        const rem = this.mPool.filter(w => (w.mastery||0) < 3);
+        const pct = Math.round((this.mPool.reduce((a,b)=>a+(b.mastery||0),0)/(this.mPool.length*3))*100) || 0;
+        document.getElementById('mBar').style.width = pct + '%';
+        if(!rem.length) { document.getElementById('mQ').innerText = "🏆 Ferdig!"; return; }
+        this.currM = rem[Math.floor(Math.random()*rem.length)];
+        document.getElementById('mQ').innerText = this.mMode==='word' ? this.currM.desc : this.currM.word;
+        document.getElementById('mAns').value = '';
+    },
+
+    /* TEST */
+    startTest() {
+        const s = document.getElementById('tSel').value;
+        const pool = s === 'all' ? Object.values(this.lib).flat() : this.lib[s] || [];
+        if(pool.length < 4) return alert("Trenger minst 4 ord!");
+        document.getElementById('tPre').style.display='none'; document.getElementById('tMain').style.display='block';
+        const container = document.getElementById('tQs'); container.innerHTML = ''; this.tData = [];
+        const testWords = [...pool].sort(()=>.5-Math.random()).slice(0, 10);
+        testWords.forEach((item, index) => {
+            const type = index % 3; let html = `<div class="test-q">`;
+            if (type === 0) {
+                const choices = [item.word]; while(choices.length<4){const r=pool[Math.floor(Math.random()*pool.length)].word; if(!choices.includes(r))choices.push(r);}
+                choices.sort(()=>.5-Math.random());
+                html += `<small style="color:var(--accent)">FLERVALG</small><p>${item.desc}</p><div class="mc-grid">`;
+                choices.forEach(c => html += `<button class="mc-btn" onclick="app.setTestAns(${index},'${c}',this)">${c}</button>`);
+                html += `</div>`; this.tData.push({ answer: item.word, type: 'mc', user: null });
+            } else if (type === 1) {
+                const isTrue = Math.random() > 0.5; const displayW = isTrue ? item.word : pool[Math.floor(Math.random()*pool.length)].word;
+                html += `<small style="color:var(--accent)">SANT / USANT</small><p>Betyr "<b>${displayW}</b>": <br>${item.desc}?</p>
+                <div style="display:flex; gap:10px;"><button class="btn-accent" style="background:#0f172a; border:1px solid #334155" onclick="app.setTestAns(${index},true,this)">SANT</button><button class="btn-accent" style="background:#0f172a; border:1px solid #334155" onclick="app.setTestAns(${index},false,this)">USANT</button></div>`;
+                this.tData.push({ answer: isTrue, type: 'tf', user: null });
+            } else {
+                html += `<small style="color:var(--accent)">SKRIFTLIG</small><p>${item.desc}</p><input type="text" id="t-ans-${index}" readonly onclick="app.openKB('t-ans-${index}')" placeholder="Svar...">`;
+                this.tData.push({ answer: item.word, type: 'write', user: null });
+            }
+            container.innerHTML += html + `</div>`;
+        });
+    },
+    setTestAns(idx, val, btn) {
+        btn.parentElement.querySelectorAll('button').forEach(b => { b.classList.remove('selected'); b.style.borderColor='#334155'; });
+        btn.classList.add('selected'); btn.style.borderColor='var(--accent)';
+        this.tData[idx].user = val;
+    },
+    gradeTest() {
+        let sc = 0; this.tData.forEach((q, i) => { if(q.type === 'write') q.user = document.getElementById(`t-ans-${i}`).value.trim(); if(String(q.user).toLowerCase() === String(q.answer).toLowerCase()) sc++; });
+        document.getElementById('tResult').innerHTML = `<h3>Resultat: ${sc} / ${this.tData.length}</h3><button class="btn-accent" onclick="app.resetUI('test')">Prøv Igjen</button>`;
+        window.scrollTo(0, document.body.scrollHeight);
+    },
+
+    /* UTILS */
+    closeModal() { document.getElementById('modalOverlay').classList.remove('open'); },
+    openKB(id) { this.kbTarget = document.getElementById(id); document.getElementById('kb-container').classList.add('open'); },
+    kbFunc(cmd) {
+        if(!this.kbTarget) return;
+        if(cmd === 'back') this.kbTarget.value = this.kbTarget.value.slice(0,-1);
+        else if(cmd === 'space') this.kbTarget.value += ' ';
+        else if(cmd === 'enter') { 
+            document.getElementById('kb-container').classList.remove('open'); 
+            if(this.kbTarget.id === 'mAns') {
+                const u = this.kbTarget.value.trim().toLowerCase();
+                const t = (this.mMode==='word' ? this.currM.word : this.currM.desc).toLowerCase();
+                const f = document.getElementById('mFeed');
+                if(u === t) { this.currM.mastery=(this.currM.mastery||0)+1; f.innerText="Riktig!"; f.style.color='var(--success)'; this.save(); setTimeout(()=>{f.innerText="";this.nextMast();},700); }
+                else { f.innerText="Svaret er: "+t; f.style.color='var(--danger)'; setTimeout(()=>{f.innerText="";this.nextMast();},2000); }
+            }
+        } else this.kbTarget.value += cmd;
+    }
+};
+
+// Keyboard generation
+const rows = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNMÆØÅ"];
+const kbRows = document.getElementById('kb-rows');
+rows.forEach(row => {
+    const r = document.createElement('div'); r.className='kb-row';
+    row.split('').forEach(c => {
+        const b = document.createElement('button'); b.className = 'key'; b.innerText = c;
+        b.onclick = () => app.kbFunc(c); r.appendChild(b);
+    });
+    kbRows.appendChild(r);
+});
+
+window.onload = () => { app.render(); app.drops(); app.tab('glossary'); };
+</script>
+</body>
+</html>
