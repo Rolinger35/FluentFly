@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fluent Fly | Final Edition</title>
+    <title>Fluent Fly | Pro v44</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --accent: #6366f1; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --text-dim: #94a3b8; --success: #10b981; --danger: #ef4444; }
+        :root { --accent: #6366f1; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --text-dim: #94a3b8; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 100px; min-height: 100vh; }
 
@@ -18,43 +18,53 @@
 
         .page { width: 92%; max-width: 500px; margin: 20px auto; display: none; }
         .page.active { display: block; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); text-align: center; margin-bottom: 15px; }
+        .card { background: var(--card-bg); padding: 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); text-align: center; margin-bottom: 15px; position: relative; }
 
-        input, select { width: 100%; background: #0f172a; border: 2px solid #334155; padding: 14px; border-radius: 14px; color: white; margin-bottom: 12px; font-size: 1rem; }
-        .btn-main { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; }
+        .prog-container { width: 100%; background: #0f172a; height: 12px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; border: 1px solid #334155; }
+        .prog-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #a855f7); width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        input, select, textarea { width: 100%; background: #0f172a; border: 2px solid #334155; padding: 14px; border-radius: 14px; color: white; margin-bottom: 12px; font-size: 1rem; font-family: inherit; }
+        .btn-main { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; transition: 0.2s; display: block; }
+        .btn-main:active { transform: scale(0.98); }
+        .btn-sec { background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid #334155; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; margin-top: 10px; }
         .btn-back { background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
 
-        /* FLASHCARD 3D FLIP */
-        .flash-container { perspective: 1000px; width: 100%; height: 250px; cursor: pointer; margin-bottom: 20px; }
-        .flash-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        .mode-toggle { background: #0f172a; padding: 4px; border-radius: 16px; display: flex; position: relative; margin-bottom: 20px; cursor: pointer; border: 1px solid #334155; }
+        .mode-opt { flex: 1; padding: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dim); z-index: 2; transition: 0.3s; }
+        .mode-opt.active { color: #fff; }
+        .mode-slider { position: absolute; width: calc(50% - 4px); height: calc(100% - 8px); background: var(--accent); left: 4px; border-radius: 12px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
+        .mode-toggle.switched .mode-slider { transform: translateX(100%); }
+
+        #m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .m-card { background: #1e293b; border: 2px solid #475569; padding: 15px; border-radius: 16px; min-height: 85px; display: flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .m-card.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.1); transform: scale(1.05); }
+        .m-card.fade-out { opacity: 0; transform: scale(0.8) translateY(-20px); pointer-events: none; }
+        .m-card.wrong { border-color: var(--danger); animation: shake 0.4s; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .flash-container { perspective: 1200px; width: 100%; height: 280px; margin-bottom: 20px; cursor: pointer; }
+        .flash-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
         .flash-container.flipped .flash-inner { transform: rotateY(180deg); }
-        .flash-front, .flash-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 24px; padding: 20px; font-size: 1.8rem; font-weight: 800; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .flash-front, .flash-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 24px; padding: 20px; font-size: 1.6rem; font-weight: 800; text-align: center; }
         .flash-front { background: var(--accent); color: white; }
         .flash-back { background: #4f46e5; color: white; transform: rotateY(180deg); }
 
-        /* TEST REVIEW */
-        .q-box { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; border-left: 4px solid var(--accent); }
-        .q-box.correct { border-left-color: var(--success); background: rgba(16, 185, 129, 0.1); }
-        .q-box.wrong { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
-        .feedback-text { font-size: 0.85rem; margin-top: 8px; font-weight: 700; display: none; color: var(--success); }
-        .opt-btn { background: #334155; margin-top: 8px; text-align: left; padding: 12px; width: 100%; color: white; border: none; border-radius: 10px; cursor: pointer; }
+        .q-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; margin-bottom: 15px; text-align: left; border-left: 4px solid var(--accent); }
+        .q-box.correct { border-left-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        .q-box.wrong { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.05); }
+        .opt-btn { background: #334155; width: 100%; padding: 12px; margin-top: 8px; border-radius: 10px; border: none; color: white; text-align: left; cursor: pointer; font-weight: 600; }
         .opt-btn.selected { background: var(--accent); }
-        .opt-btn.correct-ans { background: var(--success) !important; }
-        .opt-btn.wrong-ans { background: var(--danger) !important; }
 
-        /* MASTERY STUFF */
-        .toggle-box { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px; font-size: 0.8rem; }
-        .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: .4s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--accent); }
-        input:checked + .slider:before { transform: translateX(22px); }
-        .dot { width: 12px; height: 12px; border-radius: 50%; background: #334155; display: inline-block; margin: 0 3px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #334155; display: inline-block; margin: 0 4px; }
         .dot.active { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .speaker-btn { background: rgba(255,255,255,0.15); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 10px auto; }
+        .big-stat { font-size: 3rem; font-weight: 800; color: var(--accent); margin: 5px 0; }
+        #modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; backdrop-filter: blur(8px); }
+        .modal-box { background: var(--card-bg); padding: 35px 25px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 420px; text-align: center; max-height: 90vh; overflow-y: auto; }
         
-        #modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.98); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
-        .modal-box { background: var(--card-bg); padding: 30px; border-radius: 25px; border: 2px solid var(--accent); width: 100%; max-width: 400px; text-align: center; }
+        .modal-icon { font-size: 3.5rem; margin-bottom: 20px; }
+        .modal-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; }
+        .modal-desc { color: var(--text-dim); line-height: 1.5; margin-bottom: 25px; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -67,250 +77,286 @@
     <button class="nav-btn" onclick="app.tab('test')"><i class="fa-solid fa-vial"></i>Test</button>
 </nav>
 
-<div id="modal">
-    <div class="modal-box" id="modal-content"></div>
-</div>
+<div id="modal"><div class="modal-box" id="modal-content"></div></div>
 
 <div id="p-glossary" class="page active">
     <div class="card">
-        <h1 style="color:var(--accent); margin-bottom:15px;">Fluent Fly</h1>
-        <div style="display:flex; gap:8px;">
-            <input type="text" id="set-name" placeholder="Nytt sett...">
+        <h1>Fluent Fly</h1>
+        <div style="display:flex; gap:8px; margin-top:15px;">
+            <input type="text" id="set-name" placeholder="Navn på sett...">
             <button class="btn-main" style="width:60px" onclick="app.addSet()"><i class="fa-solid fa-plus"></i></button>
         </div>
         <div id="set-list" style="margin-top:15px;"></div>
+        <button class="btn-sec" style="font-size:0.75rem;" onclick="app.showBackup()"><i class="fa-solid fa-database"></i> Backup / Import</button>
         <div id="editor" style="display:none; border-top:1px solid #334155; margin-top:20px; padding-top:20px;">
-            <h3 id="edit-title">Sett</h3>
-            <input type="text" id="w-in" placeholder="Ord">
-            <input type="text" id="d-in" placeholder="Betydning">
-            <button class="btn-main" onclick="app.addWord()">Lagre</button>
+            <h3 id="edit-title">Rediger</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0;"><select id="lang-w" onchange="app.saveLang()"></select><select id="lang-d" onchange="app.saveLang()"></select></div>
+            <div style="display:flex; gap:5px;"><input type="text" id="w-in" placeholder="Ord"><input type="text" id="d-in" placeholder="Betydning"></div>
+            <button class="btn-main" style="width:100%" onclick="app.addWord()">Lagre Ord</button>
             <div id="word-list" style="margin-top:15px; text-align:left;"></div>
         </div>
     </div>
 </div>
 
-<div id="p-flash" class="page">
-    <div class="card" id="f-main">
-        <h2>Flashcards</h2>
-        <select id="s-flash"></select>
-        <button class="btn-main" onclick="app.startFlash()">Start</button>
-    </div>
-    <div id="f-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('flash')"><i class="fa-solid fa-arrow-left"></i> Tilbake</button>
-        <div class="flash-container" id="f-container" onclick="this.classList.toggle('flipped')">
-            <div class="flash-inner">
-                <div class="flash-front" id="f-front"></div>
-                <div class="flash-back" id="f-back"></div>
-            </div>
-        </div>
-        <div style="display:flex; gap:10px;"><button class="btn-main" style="background:#334155" onclick="app.navFlash(-1)">Forrige</button><button class="btn-main" onclick="app.navFlash(1)">Neste</button></div>
-    </div>
-</div>
-
 <div id="p-match" class="page">
-    <div class="card" id="m-main">
-        <h2>Match</h2>
-        <select id="s-match"></select>
-        <button class="btn-main" onclick="app.startMatch()">Start</button>
-    </div>
+    <div class="card" id="m-main"><h2>Lyn-Match</h2><p style="color:var(--text-dim); margin-bottom:15px;">Finn alle parene!</p><select id="s-match"></select><button class="btn-main" style="width:100%" onclick="app.startMatch()">Start Spill</button></div>
     <div id="m-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('match')"><i class="fa-solid fa-arrow-left"></i> Tilbake</button>
-        <div class="card"><h2 id="m-timer" style="color:var(--accent);">0.0s</h2><div id="m-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:15px;"></div></div>
+        <button class="btn-back" onclick="app.tab('match')">Avbryt</button>
+        <div class="card"><h2 id="m-timer" style="font-size:2.5rem; font-weight:900; color:var(--accent); margin-bottom:15px;">0.0s</h2><div id="m-grid"></div></div>
     </div>
 </div>
 
 <div id="p-mastery" class="page">
     <div class="card" id="ma-main">
-        <h2>Mestring (3x)</h2>
-        <div class="toggle-box">Svar med: Betydning <label class="switch"><input type="checkbox" id="mast-toggle"><span class="slider"></span></label> Ord</div>
+        <h2>Mestring</h2>
+        <div class="mode-toggle" id="ma-toggle-wrap" onclick="app.toggleMastMode()">
+            <div class="mode-slider"></div>
+            <div class="mode-opt active" id="opt-d">Betydning</div>
+            <div class="mode-opt" id="opt-w">Ord</div>
+        </div>
         <select id="s-mast"></select>
-        <button class="btn-main" onclick="app.startMast()">Start</button>
+        <p style="font-size: 0.8rem; margin-bottom: 5px; color: var(--text-dim);">Velg lengde på økt:</p>
+        <select id="s-sprint-size">
+            <option value="10">10 ord per økt</option>
+            <option value="20" selected>20 ord per økt</option>
+            <option value="50">50 ord per økt</option>
+            <option value="999">Alle ord</option>
+        </select>
+        <button class="btn-main" style="width:100%" onclick="app.startMast()">Start / Fortsett</button>
+        <button class="btn-sec" style="font-size: 0.8rem;" onclick="app.confirmResetMastery()">Nullstill Mestring</button>
     </div>
     <div id="ma-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('mastery')"><i class="fa-solid fa-arrow-left"></i> Tilbake</button>
+        <button class="btn-back" onclick="app.tab('mastery')">Pause / Meny</button>
+        <div class="prog-container"><div class="prog-bar" id="ma-prog"></div></div>
         <div class="card">
-            <div id="ma-dots" style="margin-bottom:15px;"></div>
-            <h3 id="ma-q" style="font-size:1.5rem; margin-bottom:15px;">?</h3>
-            <input type="text" id="ma-in" placeholder="Svar..." autocomplete="off">
-            <button class="btn-main" onclick="app.checkMast()">Sjekk</button>
-            <p id="ma-f" style="margin-top:15px; font-weight:bold;"></p>
+            <div id="ma-dots"></div>
+            <h3 id="ma-q" style="font-size:2rem; margin:20px 0; font-weight:800;">?</h3>
+            <button class="speaker-btn" onclick="app.speakText(document.getElementById('ma-q').innerText, app.mastType === 'w' ? 'd' : 'w')"><i class="fa-solid fa-volume-high"></i></button>
+            <input type="text" id="ma-in" placeholder="Skriv svaret..." autocomplete="off">
+            <button class="btn-main" style="width:100%" onclick="app.checkMast()">Sjekk Svar</button>
+            <p id="ma-f" style="margin-top:15px; font-weight:800; color:var(--danger);"></p>
         </div>
     </div>
 </div>
 
-<div id="p-test" class="page">
-    <div class="card" id="t-main">
-        <h2>Sluttest</h2>
-        <select id="s-test"></select>
-        <button class="btn-main" onclick="app.startTest()">Generer Test</button>
+<div id="p-flash" class="page">
+    <div class="card" id="f-main"><h2>Flashcards</h2><select id="s-flash"></select><button class="btn-main" style="width:100%" onclick="app.startFlash()">Start</button></div>
+    <div id="f-game" style="display:none;">
+        <button class="btn-back" onclick="app.tab('flash')">Tilbake</button>
+        <div class="prog-container"><div class="prog-bar" id="f-prog"></div></div>
+        <div class="flash-container" id="f-container" onclick="this.classList.toggle('flipped')">
+            <div class="flash-inner">
+                <div class="flash-front"><span id="f-txt-w"></span><button class="speaker-btn" onclick="event.stopPropagation(); app.speakText(document.getElementById('f-txt-w').innerText, 'w')"><i class="fa-solid fa-volume-high"></i></button></div>
+                <div class="flash-back"><span id="f-txt-d"></span><button class="speaker-btn" onclick="event.stopPropagation(); app.speakText(document.getElementById('f-txt-d').innerText, 'd')"><i class="fa-solid fa-volume-high"></i></button></div>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px;"><button class="btn-main" style="flex:1" onclick="app.navFlash(-1)">Forrige</button><button class="btn-main" style="flex:1" onclick="app.navFlash(1)">Neste</button></div>
     </div>
+</div>
+
+<div id="p-test" class="page">
+    <div class="card" id="t-main"><h2>Sluttest</h2><select id="s-test"></select><button class="btn-main" style="width:100%" onclick="app.startTest()">Generer Test</button></div>
     <div id="t-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('test')"><i class="fa-solid fa-arrow-left"></i> Tilbake</button>
-        <div id="t-list"></div>
-        <button class="btn-main" id="t-submit" onclick="app.gradeTest()">Lever Test</button>
-        <button class="btn-main" id="t-reload" style="display:none; background:#334155; margin-top:10px;" onclick="app.tab('test')">Prøv Igjen</button>
+        <button class="btn-back" onclick="app.tab('test')">Tilbake</button><div id="t-list"></div><button class="btn-main" style="width:100%" id="t-submit" onclick="app.gradeTest()">Lever Test</button><button class="btn-sec" id="t-reload" style="display:none; margin-top:10px;" onclick="app.tab('test')">Ny Test</button>
     </div>
 </div>
 
 <script>
 const app = {
-    lib: JSON.parse(localStorage.getItem('ff_v16')) || {},
-    timer: null,
-    
-    init() { this.renderSets(); this.updateDrops(); },
-    save() { localStorage.setItem('ff_v16', JSON.stringify(this.lib)); this.renderSets(); this.updateDrops(); },
+    lib: JSON.parse(localStorage.getItem('ff_v44')) || {},
+    langs: [{n:'Norsk', c:'nb-NO'}, {n:'English', c:'en-US'}, {n:'Deutsch', c:'de-DE'}, {n:'Español', c:'es-ES'}, {n:'Français', c:'fr-FR'}],
+    mastType: 'd',
+    sprintIdx: 0,
+    sprintSize: 20,
 
+    init() { this.fillLangDrops(); this.renderSets(); this.updateDrops(); document.addEventListener('keypress', e => { if(e.key==='Enter' && document.getElementById('ma-game').style.display==='block') this.checkMast(); }); },
+    save() { localStorage.setItem('ff_v44', JSON.stringify(this.lib)); this.renderSets(); this.updateDrops(); },
     tab(id) {
-        clearInterval(this.timer);
-        document.querySelectorAll('.page, .nav-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById('p-' + id).classList.add('active');
+        clearInterval(this.timer); document.querySelectorAll('.page, .nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById('p-'+id).classList.add('active');
         const idx = {glossary:0, flash:1, match:2, mastery:3, test:4}[id];
-        document.querySelectorAll('.nav-btn')[idx].classList.add('active');
-        ['f-game', 'm-game', 'ma-game', 't-game'].forEach(g => document.getElementById(g).style.display = 'none');
-        ['f-main', 'm-main', 'ma-main', 't-main'].forEach(m => document.getElementById(m).style.display = 'block');
-        document.getElementById('t-submit').style.display = 'block';
-        document.getElementById('t-reload').style.display = 'none';
+        if(document.querySelectorAll('.nav-btn')[idx]) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+        ['f-game', 'm-game', 'ma-game', 't-game'].forEach(g => { if(document.getElementById(g)) document.getElementById(g).style.display = 'none'; });
+        ['f-main', 'm-main', 'ma-main', 't-main'].forEach(m => { if(document.getElementById(m)) document.getElementById(m).style.display = 'block'; });
     },
 
-    updateDrops() {
-        ['s-flash', 's-match', 's-mast', 's-test'].forEach(id => {
-            const el = document.getElementById(id);
-            el.innerHTML = '<option value="">Velg sett...</option>';
-            Object.keys(this.lib).forEach(k => el.innerHTML += `<option value="${k}">${k}</option>`);
-        });
+    showBackup() {
+        this.modal(`<i class="fa-solid fa-cloud-arrow-up modal-icon" style="color:var(--accent)"></i>`, `<div class="modal-title">Backup & Import</div><div class="modal-desc">Lagre biblioteket ditt eller last opp en tidligere fil.</div><div id="drop-area" style="border:2px dashed #334155; border-radius:20px; padding:30px; margin-bottom:15px;" ondragover="event.preventDefault();" ondrop="app.handleDrop(event)"><p>Dra JSON hit</p><input type="file" id="file-in" style="display:none;" onchange="app.handleFile(this)"><button class="btn-sec" onclick="document.getElementById('file-in').click()" style="margin-top:10px;">Velg fil</button></div>`, `<button class="btn-main" style="width:100%; background:var(--success);" onclick="app.exportFile()">Last ned Backup</button><button class="btn-sec" onclick="app.closeM()">Avbryt</button>`);
+    },
+    handleDrop(e) { e.preventDefault(); if(e.dataTransfer.files[0]) this.readFile(e.dataTransfer.files[0]); },
+    handleFile(input) { if(input.files[0]) this.readFile(input.files[0]); },
+    readFile(file) { const r = new FileReader(); r.onload = (e) => { try { JSON.parse(e.target.result); localStorage.setItem('ff_v44', e.target.result); location.reload(); } catch(err){ alert("Ugyldig fil."); } }; r.readAsText(file); },
+    exportFile() { const blob = new Blob([JSON.stringify(this.lib, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `FluentFly_v44.json`; a.click(); },
+
+    toggleMastMode() { const wrap = document.getElementById('ma-toggle-wrap'); this.mastType = (this.mastType === 'd') ? 'w' : 'd'; wrap.classList.toggle('switched'); document.getElementById('opt-d').classList.toggle('active'); document.getElementById('opt-w').classList.toggle('active'); },
+
+    confirmResetMastery() {
+        const s = document.getElementById('s-mast').value;
+        if(!s) return;
+        const totalScore = this.lib[s].words.reduce((acc, curr) => acc + (curr.s || 0), 0);
+        const totalPossible = this.lib[s].words.length * 3;
+        const perc = Math.floor((totalScore/totalPossible)*100) || 0;
+        this.modal(`<i class="fa-solid fa-triangle-exclamation modal-icon" style="color:var(--warning)"></i>`, 
+        `<div class="modal-title">Nullstille?</div><div class="modal-desc">Du har fullført <b>${perc}%</b> av <b>${s}</b>. Vil du slette all progresjon?</div>`, 
+        `<button class="btn-main" style="width:100%; background:var(--danger);" onclick="app.doResetMastery('${s}')">Ja, slett alt</button>
+         <button class="btn-sec" onclick="app.closeM()">Behold fremgang</button>`);
+    },
+    doResetMastery(s) {
+        this.lib[s].words.forEach(w => w.s = 0);
+        this.save();
+        this.closeM();
+        if(document.getElementById('ma-game').style.display === 'block') this.tab('mastery');
     },
 
-    checkRequirement(setName, min) {
-        if(!setName) { this.modal("Ops!", "Du må velge et sett først."); return false; }
-        const count = this.lib[setName].length;
-        if(count < min) {
-            this.modal("Trenger flere ord", `Dette settet har ${count} ord. Du trenger minst **${min}** ord for å starte denne modusen.`);
-            return false;
+    /* MASTERY LOGIC */
+    startMast() {
+        const s = document.getElementById('s-mast').value; if(!s) return;
+        this.activeSet = s;
+        this.sprintSize = parseInt(document.getElementById('s-sprint-size').value);
+        this.sprintIdx = 0; 
+        this.lib[s].words.forEach(w => { if(w.s === undefined) w.s = 0; });
+        document.getElementById('ma-main').style.display = 'none'; document.getElementById('ma-game').style.display = 'block';
+        this.startSprint();
+    },
+    startSprint() {
+        this.mastPool = this.lib[this.activeSet].words.slice(this.sprintIdx, this.sprintIdx + this.sprintSize);
+        if(this.mastPool.length === 0) return this.showMastAnalysis();
+        this.nextMast();
+    },
+    nextMast() {
+        const rem = this.mastPool.filter(i => i.s < 3); 
+        if(!rem.length) {
+            // If there are more words in the library after this sprint
+            if(this.sprintIdx + this.sprintSize < this.lib[this.activeSet].words.length) {
+                this.modal(`<i class="fa-solid fa-circle-check modal-icon" style="color:var(--success)"></i>`, 
+                `<div class="modal-title">Bolk Ferdig!</div><div class="modal-desc">Du har mestret disse ordene. Klar for neste del?</div>`, 
+                `<button class='btn-main' style="width:100%" onclick='app.closeM(); app.sprintIdx += app.sprintSize; app.startSprint()'>Neste Bolk</button>
+                 <button class='btn-sec' onclick='app.closeM(); app.tab("mastery")'>Til Meny</button>`);
+            } else {
+                this.showMastAnalysis();
+            }
+            return;
         }
-        return true;
+        this.cur = rem[Math.floor(Math.random() * rem.length)];
+        const q = (this.mastType === 'w') ? this.cur.d : this.cur.w;
+        document.getElementById('ma-q').innerText = q; document.getElementById('ma-in').value = ''; document.getElementById('ma-f').innerText = '';
+        const dots = document.getElementById('ma-dots'); dots.innerHTML = '';
+        for(let i=0; i<3; i++) dots.innerHTML += `<div class="dot ${i < this.cur.s ? 'active' : ''}"></div>`;
+        const totalScore = this.lib[this.activeSet].words.reduce((acc, curr) => acc + (curr.s || 0), 0);
+        const totalPossible = this.lib[this.activeSet].words.length * 3;
+        document.getElementById('ma-prog').style.width = ((totalScore/totalPossible)*100) + '%';
+        this.speakText(q, this.mastType === 'w' ? 'd' : 'w'); document.getElementById('ma-in').focus();
+    },
+    checkMast() {
+        const val = document.getElementById('ma-in').value.trim().toLowerCase();
+        const ans = (this.mastType === 'w' ? this.cur.w : this.cur.d).toLowerCase();
+        if(val === ans) { this.cur.s++; this.save(); this.nextMast(); }
+        else { this.cur.s = 0; this.save(); document.getElementById('ma-f').innerText = "Fasit: " + ans; this.speakText(ans, this.mastType); }
+    },
+    showMastAnalysis() {
+        this.modal(`<i class="fa-solid fa-trophy modal-icon" style="color:#fbbf24"></i>`, 
+        `<div class="modal-title">100% Mestret!</div><div class="modal-desc">Gratulerer! Du har fullført hele settet <b>"${this.activeSet}"</b>. Hva vil du gjøre nå?</div>`, 
+        `<button class='btn-main' style="width:100%" onclick='app.closeM(); app.tab("mastery")'>Gå til Meny</button>
+         <button class='btn-sec' onclick='app.doResetMastery("${this.activeSet}")'>Start helt på nytt</button>`);
     },
 
-    /* GLOSSARY */
-    addSet() { const n = document.getElementById('set-name').value.trim(); if(n) { this.lib[n] = this.lib[n] || []; this.save(); document.getElementById('set-name').value=''; } },
-    renderSets() {
-        const container = document.getElementById('set-list'); container.innerHTML = '';
-        Object.keys(this.lib).forEach(k => {
-            container.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px; background:rgba(255,255,255,0.05); border-radius:12px; margin-bottom:8px; border:1px solid #334155;">
-                <span onclick="app.openSet('${k}')" style="cursor:pointer; font-weight:800;">${k} (${this.lib[k].length})</span>
-                <i class="fa-solid fa-trash" onclick="delete app.lib['${k}']; app.save();" style="color:var(--danger); cursor:pointer;"></i>
-            </div>`;
-        });
-    },
-    openSet(name) { this.activeSet = name; document.getElementById('editor').style.display = 'block'; document.getElementById('edit-title').innerText = "Sett: " + name; this.renderWords(); },
-    addWord() { const w = document.getElementById('w-in').value.trim(), d = document.getElementById('d-in').value.trim(); if(w && d) { this.lib[this.activeSet].push({w, d}); this.save(); this.renderWords(); document.getElementById('w-in').value=''; document.getElementById('d-in').value=''; } },
-    renderWords() {
-        const container = document.getElementById('word-list'); container.innerHTML = '';
-        this.lib[this.activeSet].forEach((it, i) => { container.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px; border-bottom:1px solid #334155;"><span><b>${it.w}</b>: ${it.d}</span><i class="fa-solid fa-xmark" onclick="app.lib['${app.activeSet}'].splice(${i},1); app.save(); app.renderWords();"></i></div>`; });
-    },
-
-    /* GAMES */
+    /* FLASHCARDS */
     startFlash() {
-        const s = document.getElementById('s-flash').value;
-        if(!this.checkRequirement(s, 1)) return;
-        this.pool = this.lib[s]; this.fIdx = 0;
-        document.getElementById('f-main').style.display = 'none'; document.getElementById('f-game').style.display = 'block';
-        this.drawFlash();
+        const s = document.getElementById('s-flash').value; if(!s) return;
+        this.activeSet = s; this.pool = [...this.lib[s].words].sort(() => 0.5 - Math.random());
+        this.fIdx = 0; document.getElementById('f-main').style.display = 'none'; document.getElementById('f-game').style.display = 'block';
+        this.drawFlash(true);
     },
-    drawFlash() {
-        document.getElementById('f-container').classList.remove('flipped');
-        setTimeout(() => { const it = this.pool[this.fIdx]; document.getElementById('f-front').innerText = it.w; document.getElementById('f-back').innerText = it.d; }, 150);
+    drawFlash(isFirst) {
+        const container = document.getElementById('f-container');
+        if(!isFirst) container.classList.remove('flipped');
+        document.getElementById('f-prog').style.width = (((this.fIdx + 1) / this.pool.length) * 100) + '%';
+        setTimeout(() => {
+            document.getElementById('f-txt-w').innerText = this.pool[this.fIdx].w;
+            document.getElementById('f-txt-d').innerText = this.pool[this.fIdx].d;
+            if(!container.classList.contains('flipped')) this.speakText(this.pool[this.fIdx].w, 'w');
+        }, isFirst ? 0 : 150);
     },
-    navFlash(d) { this.fIdx = (this.fIdx + d + this.pool.length) % this.pool.length; this.drawFlash(); },
+    navFlash(d) { this.fIdx = (this.fIdx + d + this.pool.length) % this.pool.length; this.drawFlash(false); },
 
+    /* MATCH */
     startMatch() {
-        const s = document.getElementById('s-match').value;
-        if(!this.checkRequirement(s, 4)) return;
-        document.getElementById('m-main').style.display = 'none'; document.getElementById('m-game').style.display = 'block';
-        const grid = document.getElementById('m-grid'); grid.innerHTML = '';
-        let t = 0, count = 0, sel = null;
+        const s = document.getElementById('s-match').value; if(!s || this.lib[s].words.length < 3) return;
+        this.activeSet = s; document.getElementById('m-main').style.display = 'none'; document.getElementById('m-game').style.display = 'block';
+        let t = 0, count = 0, sel = null, lock = false, pens = 0; const grid = document.getElementById('m-grid'); grid.innerHTML = '';
         this.timer = setInterval(() => { t += 0.1; document.getElementById('m-timer').innerText = t.toFixed(1)+'s'; }, 100);
-        let sub = [...this.lib[s]].sort(()=>.5-Math.random()).slice(0,6);
-        let cards = []; sub.forEach(x => { cards.push({t:x.w, id:x.w}); cards.push({t:x.d, id:x.w}); });
-        cards.sort(()=>.5-Math.random()).forEach(it => {
-            const d = document.createElement('div'); d.style = "background:#1e293b; border:2px solid #475569; padding:15px; border-radius:12px; min-height:80px; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:bold; cursor:pointer;";
-            d.innerText = it.t;
+        let sub = [...this.lib[s].words].sort(() => .5 - Math.random()).slice(0, 6);
+        let cards = []; sub.forEach(x => { cards.push({t: x.w, id: x.w}); cards.push({t: x.d, id: x.w}); });
+        cards.sort(() => .5 - Math.random()).forEach(it => {
+            const d = document.createElement('div'); d.className = 'm-card'; d.innerText = it.t;
             d.onclick = () => {
-                if(d.style.opacity === '0' || d === sel?.el) return;
-                d.style.borderColor = 'var(--accent)';
-                if(!sel) sel = {el:d, id:it.id};
+                if(lock || d.classList.contains('fade-out') || d === sel?.el) return;
+                d.classList.add('selected');
+                if(!sel) sel = {el: d, id: it.id};
                 else {
-                    if(sel.id === it.id) { d.style.opacity = '0'; sel.el.style.opacity = '0'; count++; if(count===sub.length){ clearInterval(this.timer); app.modal("Ferdig!", t.toFixed(1)+'s'); } }
-                    else { t += 2.0; d.style.borderColor = 'var(--danger)'; sel.el.style.borderColor = 'var(--danger)'; let p = sel.el; setTimeout(()=>{d.style.borderColor='#475569'; p.style.borderColor='#475569';}, 400); }
+                    if(sel.id === it.id) {
+                        d.classList.add('fade-out'); sel.el.classList.add('fade-out'); count++;
+                        if(count === sub.length) { clearInterval(this.timer); setTimeout(() => this.showMatchResults(t.toFixed(1), pens), 500); }
+                    } else {
+                        lock = true; t += 1.0; pens++; d.classList.add('wrong'); sel.el.classList.add('wrong');
+                        let p = sel.el; setTimeout(() => { d.classList.remove('wrong', 'selected'); p.classList.remove('wrong', 'selected'); lock = false; }, 400);
+                    }
                     sel = null;
                 }
             }; grid.appendChild(d);
         });
     },
-
-    startMast() {
-        const s = document.getElementById('s-mast').value;
-        if(!this.checkRequirement(s, 1)) return;
-        this.mastType = document.getElementById('mast-toggle').checked ? 'w' : 'd';
-        this.mastPool = this.lib[s].map(it => ({ ...it, streak: 0 }));
-        document.getElementById('ma-main').style.display = 'none'; document.getElementById('ma-game').style.display = 'block';
-        this.nextMast();
-    },
-    nextMast() {
-        const rem = this.mastPool.filter(i => i.streak < 3); if(!rem.length) return this.modal("Fullført!", "Du har mestret alle ordene.");
-        this.cur = rem[Math.floor(Math.random()*rem.length)];
-        document.getElementById('ma-q').innerText = (this.mastType === 'w') ? this.cur.d : this.cur.w;
-        document.getElementById('ma-in').value = ''; document.getElementById('ma-f').innerText = '';
-        const dots = document.getElementById('ma-dots'); dots.innerHTML = '';
-        for(let i=0; i<3; i++) dots.innerHTML += `<div class="dot ${i < this.cur.streak ? 'active' : ''}"></div>`;
-    },
-    checkMast() {
-        const val = document.getElementById('ma-in').value.trim().toLowerCase();
-        const cor = (this.mastType === 'w') ? this.cur.w.toLowerCase() : this.cur.d.toLowerCase();
-        if(val === cor) { this.cur.streak++; setTimeout(()=>this.nextMast(), 600); }
-        else { this.cur.streak = 0; document.getElementById('ma-f').innerText = "Riktig: " + cor; }
+    showMatchResults(time, pens) { 
+        this.modal(`<i class="fa-solid fa-stopwatch modal-icon" style="color:var(--accent)"></i>`, 
+        `<div class="modal-title">Match Fullført!</div><div class="big-stat">${time}s</div><div class="modal-desc">Inkludert ${pens} straff-sekunder.</div>`, 
+        `<button class='btn-main' style="width:100%" onclick='app.closeM(); app.startMatch()'>Spill Igjen</button><button class='btn-sec' onclick='app.closeM(); app.tab("match")'>Meny</button>`); 
     },
 
+    /* TEST */
     startTest() {
-        const s = document.getElementById('s-test').value;
-        if(!this.checkRequirement(s, 2)) return;
-        document.getElementById('t-main').style.display = 'none'; document.getElementById('t-game').style.display = 'block';
+        const s = document.getElementById('s-test').value; if(!s || this.lib[s].words.length < 4) return;
+        this.activeSet = s; document.getElementById('t-main').style.display='none'; document.getElementById('t-game').style.display='block';
+        document.getElementById('t-submit').style.display='block'; document.getElementById('t-reload').style.display='none';
         const list = document.getElementById('t-list'); list.innerHTML = '';
-        const pool = [...this.lib[s]].sort(()=>.5-Math.random());
-        pool.forEach((it, idx) => {
-            const type = idx % 3; const d = document.createElement('div'); d.className = 'q-box';
-            if(type === 0) {
-                let opts = [it.d]; while(opts.length<4 && opts.length<pool.length) { let r = pool[Math.floor(Math.random()*pool.length)].d; if(!opts.includes(r)) opts.push(r); }
-                opts.sort(()=>.5-Math.random());
-                d.innerHTML = `<p><b>${idx+1}.</b> Betydning av "${it.w}"?</p>`;
-                opts.forEach(o => d.innerHTML += `<button class="opt-btn" onclick="app.sel(this)" data-is-correct="${o===it.d}">${o}</button>`);
-            } else if(type === 1) {
-                const isT = Math.random() > 0.5; const show = isT ? it.d : pool[Math.floor(Math.random()*pool.length)].d;
-                d.innerHTML = `<p><b>${idx+1}.</b> Betyr "${it.w}" det samme som "${show}"?</p>
-                    <button class="opt-btn" style="width:48%; display:inline-block;" onclick="app.sel(this)" data-is-correct="${(show===it.d)}">Sant</button>
-                    <button class="opt-btn" style="width:48%; display:inline-block; margin-left:4%;" onclick="app.sel(this)" data-is-correct="${!(show===it.d)}">Usant</button>`;
-            } else { d.innerHTML = `<p><b>${idx+1}.</b> Skriv betydningen av "${it.w}":</p><input type="text" class="t-ans-input" data-ans="${it.d}">`; }
-            d.innerHTML += `<p class="feedback-text">Fasit: ${it.d}</p>`; list.appendChild(d);
+        const words = [...this.lib[s].words].sort(() => 0.5 - Math.random());
+        words.forEach((it, idx) => {
+            const mode = idx % 4; const d = document.createElement('div'); d.className = 'q-box'; d.dataset.ans = it.d.toLowerCase(); d.dataset.type = mode;
+            if(mode === 0) { d.innerHTML = `<p><b>Hva betyr "${it.w}"?</b></p>`; let opts = [it.d]; while(opts.length < 4) { let r = words[Math.floor(Math.random()*words.length)].d; if(!opts.includes(r)) opts.push(r); } opts.sort(() => 0.5 - Math.random()).forEach(o => d.innerHTML += `<button class='opt-btn' onclick='app.sel(this)'>${o}</button>`); } 
+            else if(mode === 1) { const isT = Math.random() > 0.5; const fake = words.find(w => w.d !== it.d).d; d.dataset.isTrue = isT; d.innerHTML = `<p><b>"${it.w}" betyr "${isT ? it.d : fake}"?</b></p><div style='display:flex; gap:10px;'><button class='opt-btn' onclick='app.sel(this)' data-val='true'>Sant</button><button class='opt-btn' onclick='app.sel(this)' data-val='false'>Usant</button></div>`; } 
+            else if(mode === 2) { d.innerHTML = `<p><b>Skriv betydningen av "${it.w}":</b></p><input type="text" class="t-write-inp" placeholder="...">`; } 
+            else { d.innerHTML = `<p><b>Velg riktig ord for "${it.w}":</b></p><select class="t-match-select"><option value="">Velg...</option>${words.slice(0,5).map(w=>`<option value="${w.d}">${w.d}</option>`).join('')}</select>`; }
+            d.innerHTML += `<p style="color:var(--success); font-weight:bold; display:none; margin-top:8px;" class="feedback-text">Fasit: ${it.d}</p>`; list.appendChild(d);
         });
     },
-    sel(b) { b.parentElement.querySelectorAll('.opt-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); },
+    sel(b) { b.parentElement.querySelectorAll('.opt-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); },
     gradeTest() {
-        let score = 0; const questions = document.querySelectorAll('.q-box');
-        questions.forEach(q => {
-            let isCorrect = false; const selBtn = q.querySelector('.opt-btn.selected');
-            if(selBtn) {
-                if(selBtn.dataset.isCorrect === "true") { isCorrect = true; selBtn.classList.add('correct-ans'); }
-                else { selBtn.classList.add('wrong-ans'); q.querySelectorAll('.opt-btn').forEach(b => { if(b.dataset.isCorrect === "true") b.classList.add('correct-ans'); }); }
-            }
-            const input = q.querySelector('.t-ans-input');
-            if(input) { if(input.value.trim().toLowerCase() === input.dataset.ans.toLowerCase()) isCorrect = true; else input.style.borderColor = 'var(--danger)'; }
-            if(isCorrect) { score++; q.classList.add('correct'); } else { q.classList.add('wrong'); q.querySelector('.feedback-text').style.display = 'block'; }
+        let score = 0; const boxes = document.querySelectorAll('.q-box');
+        boxes.forEach(box => {
+            let ok = false; const type = parseInt(box.dataset.type);
+            if(type === 0) { const s = box.querySelector('.opt-btn.selected'); if(s && s.innerText.toLowerCase() === box.dataset.ans) ok = true; } 
+            else if(type === 1) { const s = box.querySelector('.opt-btn.selected'); const isT = box.dataset.isTrue === 'true'; if(s && s.dataset.val === (isT ? 'true' : 'false')) ok = true; } 
+            else if(type === 2) { if(box.querySelector('.t-write-inp').value.trim().toLowerCase() === box.dataset.ans) ok = true; } 
+            else if(type === 3) { if(box.querySelector('.t-match-select').value.toLowerCase() === box.dataset.ans) ok = true; }
+            if(ok) { score++; box.classList.add('correct'); } else { box.classList.add('wrong'); box.querySelector('.feedback-text').style.display='block'; }
         });
-        document.getElementById('t-submit').style.display = 'none'; document.getElementById('t-reload').style.display = 'block';
-        this.modal("Resultat", score + " / " + questions.length);
+        document.getElementById('t-submit').style.display='none'; document.getElementById('t-reload').style.display='block';
+        this.modal(`<i class="fa-solid fa-graduation-cap modal-icon" style="color:var(--accent)"></i>`, `<div class="modal-title">Test Fullført</div><div class="big-stat">${score}/${boxes.length}</div><div class="modal-desc">Se gjennom svarene dine på siden.</div>`);
     },
 
-    modal(t, v) { document.getElementById('modal-content').innerHTML = `<h2>${t}</h2><p style="margin:20px 0;">${v}</p><button class="btn-main" onclick="app.closeM()">Lukk</button>`; document.getElementById('modal').style.display = 'flex'; },
-    closeM() { document.getElementById('modal').style.display = 'none'; }
+    speakText(text, type) { speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); const set = this.lib[this.activeSet]; msg.lang = (type === 'w') ? (set?.langW || 'en-US') : (set?.langD || 'nb-NO'); msg.rate = 0.95; speechSynthesis.speak(msg); },
+    fillLangDrops() { const w = document.getElementById('lang-w'), d = document.getElementById('lang-d'); this.langs.forEach(l => { w.innerHTML += `<option value="${l.c}">${l.n}</option>`; d.innerHTML += `<option value="${l.c}">${l.n}</option>`; }); },
+    renderSets() { const list = document.getElementById('set-list'); list.innerHTML = ''; Object.keys(this.lib).forEach(k => { list.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; cursor:pointer;" onclick="app.openSet('${k}')"><b>${k}</b><span>${this.lib[k].words.length} <i class="fa-solid fa-chevron-right"></i></span></div>`; }); },
+    updateDrops() { ['s-flash','s-match','s-mast','s-test'].forEach(id => { const el = document.getElementById(id); if(el){ el.innerHTML='<option value="">Velg sett...</option>'; Object.keys(this.lib).forEach(k => el.innerHTML+=`<option value="${k}">${k}</option>`); } }); },
+    addSet() { const n = document.getElementById('set-name').value.trim(); if(n){ this.lib[n]={words:[], langW:'en-US', langD:'nb-NO'}; this.save(); } },
+    openSet(name) { this.activeSet = name; document.getElementById('editor').style.display='block'; document.getElementById('edit-title').innerText=name; document.getElementById('lang-w').value=this.lib[name].langW; document.getElementById('lang-d').value=this.lib[name].langD; this.renderWords(); },
+    saveLang() { this.lib[this.activeSet].langW = document.getElementById('lang-w').value; this.lib[this.activeSet].langD = document.getElementById('lang-d').value; this.save(); },
+    addWord() { const w=document.getElementById('w-in').value.trim(), d=document.getElementById('d-in').value.trim(); if(w&&d){ this.lib[this.activeSet].words.push({w,d,s:0}); this.save(); this.renderWords(); document.getElementById('w-in').value=''; document.getElementById('d-in').value=''; document.getElementById('w-in').focus(); } },
+    renderWords() { const list = document.getElementById('word-list'); list.innerHTML = ''; this.lib[this.activeSet].words.forEach((it, i) => { list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #334155; display:flex; justify-content:space-between; font-size:0.9rem;"><span><b>${it.w}</b>: ${it.d}</span><i class="fa-solid fa-trash" style="color:var(--danger)" onclick="app.lib['${app.activeSet}'].words.splice(${i},1); app.save(); app.renderWords();"></i></div>`; }); },
+    modal(iconHTML, contentHTML, buttonsHTML = `<button class="btn-main" style="width:100%" onclick="app.closeM()">Lukk</button>`) { 
+        document.getElementById('modal-content').innerHTML = `${iconHTML}<div>${contentHTML}</div><div style="margin-top:20px;">${buttonsHTML}</div>`; 
+        document.getElementById('modal').style.display='flex'; 
+    },
+    closeM() { document.getElementById('modal').style.display='none'; }
 };
 window.onload = () => app.init();
 </script>
