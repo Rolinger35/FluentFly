@@ -3,362 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fluent Fly | Pro v44</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Fluent Fly | Pro v73</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --accent: #6366f1; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --text-dim: #94a3b8; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 100px; min-height: 100vh; }
-
-        nav { position: fixed; bottom: 0; width: 100%; background: #1e293b; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.1); z-index: 9999; }
-        .nav-btn { background: none; border: none; color: var(--text-dim); display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: 700; cursor: pointer; flex: 1; }
-        .nav-btn.active { color: var(--accent); }
-        .nav-btn i { font-size: 1.4rem; margin-bottom: 4px; }
-
-        .page { width: 92%; max-width: 500px; margin: 20px auto; display: none; }
-        .page.active { display: block; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); text-align: center; margin-bottom: 15px; position: relative; }
-
-        .prog-container { width: 100%; background: #0f172a; height: 12px; border-radius: 10px; margin-bottom: 20px; overflow: hidden; border: 1px solid #334155; }
-        .prog-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #a855f7); width: 0%; transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        input, select, textarea { width: 100%; background: #0f172a; border: 2px solid #334155; padding: 14px; border-radius: 14px; color: white; margin-bottom: 12px; font-size: 1rem; font-family: inherit; }
-        .btn-main { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; transition: 0.2s; display: block; }
-        .btn-main:active { transform: scale(0.98); }
-        .btn-sec { background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid #334155; padding: 14px; border-radius: 14px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-back { background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid #334155; padding: 10px 15px; border-radius: 12px; margin-bottom: 20px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-
-        .mode-toggle { background: #0f172a; padding: 4px; border-radius: 16px; display: flex; position: relative; margin-bottom: 20px; cursor: pointer; border: 1px solid #334155; }
-        .mode-opt { flex: 1; padding: 10px; font-size: 0.85rem; font-weight: 700; color: var(--text-dim); z-index: 2; transition: 0.3s; }
-        .mode-opt.active { color: #fff; }
-        .mode-slider { position: absolute; width: calc(50% - 4px); height: calc(100% - 8px); background: var(--accent); left: 4px; border-radius: 12px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1; }
-        .mode-toggle.switched .mode-slider { transform: translateX(100%); }
-
-        #m-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .m-card { background: #1e293b; border: 2px solid #475569; padding: 15px; border-radius: 16px; min-height: 85px; display: flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .m-card.selected { border-color: var(--accent); background: rgba(99, 102, 241, 0.1); transform: scale(1.05); }
-        .m-card.fade-out { opacity: 0; transform: scale(0.8) translateY(-20px); pointer-events: none; }
-        .m-card.wrong { border-color: var(--danger); animation: shake 0.4s; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-
-        .flash-container { perspective: 1200px; width: 100%; height: 280px; margin-bottom: 20px; cursor: pointer; }
-        .flash-inner { position: relative; width: 100%; height: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
-        .flash-container.flipped .flash-inner { transform: rotateY(180deg); }
-        .flash-front, .flash-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 24px; padding: 20px; font-size: 1.6rem; font-weight: 800; text-align: center; }
-        .flash-front { background: var(--accent); color: white; }
-        .flash-back { background: #4f46e5; color: white; transform: rotateY(180deg); }
-
-        .q-box { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 20px; margin-bottom: 15px; text-align: left; border-left: 4px solid var(--accent); }
-        .q-box.correct { border-left-color: var(--success); background: rgba(16, 185, 129, 0.05); }
-        .q-box.wrong { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.05); }
-        .opt-btn { background: #334155; width: 100%; padding: 12px; margin-top: 8px; border-radius: 10px; border: none; color: white; text-align: left; cursor: pointer; font-weight: 600; }
-        .opt-btn.selected { background: var(--accent); }
-
-        .dot { width: 12px; height: 12px; border-radius: 50%; background: #334155; display: inline-block; margin: 0 4px; }
-        .dot.active { background: var(--success); box-shadow: 0 0 8px var(--success); }
-        .speaker-btn { background: rgba(255,255,255,0.15); border: none; color: white; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; margin: 10px auto; }
-        .big-stat { font-size: 3rem; font-weight: 800; color: var(--accent); margin: 5px 0; }
-        #modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; backdrop-filter: blur(8px); }
-        .modal-box { background: var(--card-bg); padding: 35px 25px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 420px; text-align: center; max-height: 90vh; overflow-y: auto; }
+        :root { 
+            --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.2);
+            --bg: #0b0f1a; --card-bg: #161b2c; --text: #f8fafc; 
+            --text-dim: #94a3b8; --success: #10b981; --danger: #ef4444; 
+        }
         
-        .modal-icon { font-size: 3.5rem; margin-bottom: 20px; }
-        .modal-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; }
-        .modal-desc { color: var(--text-dim); line-height: 1.5; margin-bottom: 25px; font-size: 1rem; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { 
+            background: var(--bg); background-image: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, transparent 50%);
+            color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 100px; min-height: 100vh;
+        }
+        
+        nav { position: fixed; bottom: 0; width: 100%; background: rgba(22, 27, 44, 0.9); backdrop-filter: blur(25px); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.08); z-index: 1000; }
+        .nav-btn { background: none; border: none; color: var(--text-dim); display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; font-weight: 700; cursor: pointer; flex: 1; transition: 0.3s; }
+        .nav-btn.active { color: var(--accent); }
+        .nav-btn i { font-size: 1.5rem; margin-bottom: 4px; }
+
+        .page { width: 90%; max-width: 600px; margin: 40px auto; display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--card-bg); padding: 30px; border-radius: 32px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); position: relative; }
+        h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 20px; text-align: center; }
+        
+        input, select { width: 100%; background: #070a13; border: 2px solid #242b3d; padding: 16px; border-radius: 18px; color: white; margin-bottom: 12px; font-size: 1rem; transition: 0.2s; font-family: inherit; }
+        input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 4px var(--accent-glow); }
+        
+        .btn-main { background: var(--accent); color: white; border: none; padding: 18px; border-radius: 20px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; margin-bottom: 10px; }
+        .btn-sec { background: rgba(255,255,255,0.03); color: var(--text-dim); border: 1px solid #242b3d; padding: 14px; border-radius: 18px; font-weight: 700; width: 100%; cursor: pointer; margin-top: 5px; display: flex; align-items: center; justify-content: center; }
+
+        .f-container { perspective: 1500px; width: 100%; height: 420px; cursor: pointer; margin-bottom: 25px; }
+        .f-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+        .f-inner.flipped { transform: rotateY(180deg); }
+        .f-inner.no-anim { transition: none !important; }
+        .f-front, .f-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 35px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; border: 1px solid rgba(255,255,255,0.06); background: var(--card-bg); text-align: center; }
+        .f-back { transform: rotateY(180deg); }
+
+        .dropzone { border: 2px dashed #31394f; border-radius: 24px; padding: 25px; margin-bottom: 15px; cursor: pointer; background: rgba(0,0,0,0.2); text-align: center; color: var(--text-dim); transition: 0.2s; }
+        
+        .m-card { height: 110px; border-radius: 20px; background: var(--card-bg); border: 2px solid #242b3d; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; overflow: hidden; padding: 8px; text-align: center; font-size: 0.9rem; }
+        .m-card.wrong { border-color: var(--danger) !important; box-shadow: 0 0 15px var(--danger); }
+        .m-card.right { opacity: 0; transform: scale(0.5); pointer-events: none; }
+
+        #modal { position: fixed; inset: 0; background: rgba(5, 7, 13, 0.98); display: none; align-items: center; justify-content: center; z-index: 10000; backdrop-filter: blur(20px); padding: 20px; }
+        .modal-box { background: var(--card-bg); padding: 35px; border-radius: 40px; width: 100%; max-width: 480px; text-align: center; border: 1px solid rgba(255,255,255,0.1); max-height: 90vh; overflow-y: auto; }
+        
+        .prog-wrap { width: 100%; height: 10px; background: #070a13; border-radius: 20px; margin: 20px 0; overflow: hidden; }
+        .prog-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #a5b4fc); width: 0%; transition: 0.5s ease; }
+        
+        .t-q-card.correct { border: 2px solid var(--success) !important; background: rgba(16, 185, 129, 0.05); }
+        .t-q-card.incorrect { border: 2px solid var(--danger) !important; background: rgba(239, 68, 68, 0.05); }
+        .selected { border-color: var(--accent) !important; background: var(--accent-glow) !important; }
+
+        .toggle-card { background: rgba(255,255,255,0.03); padding: 15px 20px; border-radius: 20px; border: 1px solid #242b3d; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: #242b3d; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .dot-box { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
+        .m-dot { width: 12px; height: 12px; border-radius: 50%; background: #242b3d; }
+        .m-dot.active { background: var(--success); box-shadow: 0 0 10px var(--success); }
+
+        .confetti { position: absolute; width: 10px; height: 10px; z-index: 9999; pointer-events: none; }
+        @keyframes fall { to { transform: translateY(700px) rotate(360deg); opacity: 0; } }
+        
+        /* New Match Penalty Styles */
+        #m-timer.penalty { color: var(--danger) !important; transform: scale(1.1); transition: 0.2s; }
     </style>
 </head>
 <body>
 
-<nav>
-    <button class="nav-btn active" onclick="app.tab('glossary')"><i class="fa-solid fa-folder"></i>Sett</button>
-    <button class="nav-btn" onclick="app.tab('flash')"><i class="fa-solid fa-clone"></i>Kort</button>
-    <button class="nav-btn" onclick="app.tab('match')"><i class="fa-solid fa-bolt"></i>Match</button>
-    <button class="nav-btn" onclick="app.tab('mastery')"><i class="fa-solid fa-graduation-cap"></i>Lær</button>
-    <button class="nav-btn" onclick="app.tab('test')"><i class="fa-solid fa-vial"></i>Test</button>
-</nav>
-
+<div id="toast" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--danger); color:white; padding:12px 25px; border-radius:15px; z-index:11000; display:none; font-weight:700;"></div>
 <div id="modal"><div class="modal-box" id="modal-content"></div></div>
 
-<div id="p-glossary" class="page active">
-    <div class="card">
-        <h1>Fluent Fly</h1>
-        <div style="display:flex; gap:8px; margin-top:15px;">
-            <input type="text" id="set-name" placeholder="Navn på sett...">
-            <button class="btn-main" style="width:60px" onclick="app.addSet()"><i class="fa-solid fa-plus"></i></button>
-        </div>
-        <div id="set-list" style="margin-top:15px;"></div>
-        <button class="btn-sec" style="font-size:0.75rem;" onclick="app.showBackup()"><i class="fa-solid fa-database"></i> Backup / Import</button>
-        <div id="editor" style="display:none; border-top:1px solid #334155; margin-top:20px; padding-top:20px;">
-            <h3 id="edit-title">Rediger</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0;"><select id="lang-w" onchange="app.saveLang()"></select><select id="lang-d" onchange="app.saveLang()"></select></div>
-            <div style="display:flex; gap:5px;"><input type="text" id="w-in" placeholder="Ord"><input type="text" id="d-in" placeholder="Betydning"></div>
-            <button class="btn-main" style="width:100%" onclick="app.addWord()">Lagre Ord</button>
-            <div id="word-list" style="margin-top:15px; text-align:left;"></div>
-        </div>
-    </div>
-</div>
+<nav>
+    <button class="nav-btn active" onclick="app.tab('glossary')"><i class="fa-solid fa-layer-group"></i>Samling</button>
+    <button class="nav-btn" onclick="app.tab('flash')"><i class="fa-solid fa-clone"></i>Kort</button>
+    <button class="nav-btn" onclick="app.tab('match')"><i class="fa-solid fa-bolt"></i>Match</button>
+    <button class="nav-btn" onclick="app.tab('mastery')"><i class="fa-solid fa-graduation-cap"></i>Mestre</button>
+    <button class="nav-btn" onclick="app.tab('test')"><i class="fa-solid fa-file-signature"></i>Test</button>
+</nav>
 
-<div id="p-match" class="page">
-    <div class="card" id="m-main"><h2>Lyn-Match</h2><p style="color:var(--text-dim); margin-bottom:15px;">Finn alle parene!</p><select id="s-match"></select><button class="btn-main" style="width:100%" onclick="app.startMatch()">Start Spill</button></div>
-    <div id="m-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('match')">Avbryt</button>
-        <div class="card"><h2 id="m-timer" style="font-size:2.5rem; font-weight:900; color:var(--accent); margin-bottom:15px;">0.0s</h2><div id="m-grid"></div></div>
+<div id="p-glossary" class="page active">
+    <h1>Fluent Fly</h1>
+    <div class="card">
+        <div style="display:flex; gap:12px; margin-bottom: 20px;">
+            <input type="text" id="set-name" placeholder="Navn på nytt sett...">
+            <button class="btn-main" style="width:70px; padding:0; margin:0;" onclick="app.addSet()"><i class="fa-solid fa-plus"></i></button>
+        </div>
+        <div id="set-list"></div>
+        <button class="btn-sec" onclick="app.showBackup()"><i class="fa-solid fa-arrows-rotate"></i> Data & Backup Hub</button>
+    </div>
+
+    <div id="editor" class="card" style="display:none;">
+        <h2 id="edit-title">Sett</h2>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:15px;">
+            <div>
+                <label style="font-size:0.7rem; font-weight:800; color:var(--text-dim);">ORD</label>
+                <select id="lang-w" onchange="app.saveLang()"></select>
+                <input type="text" id="w-in" placeholder="Skriv ord...">
+            </div>
+            <div>
+                <label style="font-size:0.7rem; font-weight:800; color:var(--text-dim);">BETYDNING</label>
+                <select id="lang-d" onchange="app.saveLang()"></select>
+                <input type="text" id="d-in" placeholder="Oversettelse...">
+            </div>
+        </div>
+        <div class="dropzone" id="img-dropzone" onclick="document.getElementById('img-file').click()" ondragover="event.preventDefault()" ondrop="app.dropI(event)">
+            <span id="img-hint"><i class="fa-regular fa-image"></i> Laste Opp / Dra bilde hit</span>
+            <img id="img-prev" style="max-height:80px; border-radius:10px; display:none; margin:5px auto;">
+            <input type="file" id="img-file" style="display:none" accept="image/*" onchange="app.handleI(this.files[0])">
+        </div>
+        <button class="btn-main" onclick="app.addWord()">Lagre Ord</button>
+        <div id="word-list" style="margin-top:20px;"></div>
     </div>
 </div>
 
 <div id="p-mastery" class="page">
     <div class="card" id="ma-main">
-        <h2>Mestring</h2>
-        <div class="mode-toggle" id="ma-toggle-wrap" onclick="app.toggleMastMode()">
-            <div class="mode-slider"></div>
-            <div class="mode-opt active" id="opt-d">Betydning</div>
-            <div class="mode-opt" id="opt-w">Ord</div>
-        </div>
+        <h1>Mestre</h1>
         <select id="s-mast"></select>
-        <p style="font-size: 0.8rem; margin-bottom: 5px; color: var(--text-dim);">Velg lengde på økt:</p>
-        <select id="s-sprint-size">
-            <option value="10">10 ord per økt</option>
-            <option value="20" selected>20 ord per økt</option>
-            <option value="50">50 ord per økt</option>
-            <option value="999">Alle ord</option>
-        </select>
-        <button class="btn-main" style="width:100%" onclick="app.startMast()">Start / Fortsett</button>
-        <button class="btn-sec" style="font-size: 0.8rem;" onclick="app.confirmResetMastery()">Nullstill Mestring</button>
+        <div class="toggle-card">
+            <span>Bruk bilder som spørsmål</span>
+            <label class="switch"><input type="checkbox" id="ma-img-toggle" checked><span class="slider"></span></label>
+        </div>
+        <select id="ma-side-toggle"><option value="d">Svar med Betydning</option><option value="w">Svar med Ord</option></select>
+        <button class="btn-main" onclick="app.startMast()">Begynn / Fortsett</button>
+        <button class="btn-sec" style="color:var(--danger);" onclick="app.confirmResetMast()">Start helt forfra</button>
     </div>
     <div id="ma-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('mastery')">Pause / Meny</button>
-        <div class="prog-container"><div class="prog-bar" id="ma-prog"></div></div>
-        <div class="card">
-            <div id="ma-dots"></div>
-            <h3 id="ma-q" style="font-size:2rem; margin:20px 0; font-weight:800;">?</h3>
-            <button class="speaker-btn" onclick="app.speakText(document.getElementById('ma-q').innerText, app.mastType === 'w' ? 'd' : 'w')"><i class="fa-solid fa-volume-high"></i></button>
-            <input type="text" id="ma-in" placeholder="Skriv svaret..." autocomplete="off">
-            <button class="btn-main" style="width:100%" onclick="app.checkMast()">Sjekk Svar</button>
-            <p id="ma-f" style="margin-top:15px; font-weight:800; color:var(--danger);"></p>
+        <div class="prog-wrap"><div class="prog-fill" id="ma-prog"></div></div>
+        <div class="card" style="text-align:center;">
+            <div class="dot-box" id="ma-dots"></div>
+            <img id="ma-img" style="width:180px; height:180px; object-fit:cover; border-radius:30px; margin:0 auto 20px; display:none; border:2px solid #242b3d;">
+            <h3 id="ma-q" style="font-size:1.8rem; margin:20px 0;"></h3>
+            <input type="text" id="ma-in" placeholder="Svar..." autocomplete="off">
+            <button class="btn-main" onclick="app.checkMast()">Sjekk</button>
+            <p id="ma-f" style="color:var(--danger); font-weight:800; margin-top:10px;"></p>
         </div>
+        <button class="btn-sec" onclick="app.tab('mastery')">Lagre & Avslutt</button>
     </div>
 </div>
 
 <div id="p-flash" class="page">
-    <div class="card" id="f-main"><h2>Flashcards</h2><select id="s-flash"></select><button class="btn-main" style="width:100%" onclick="app.startFlash()">Start</button></div>
+    <div class="card" id="f-main">
+        <h1>Flashcards</h1>
+        <select id="s-flash"></select>
+        <div class="toggle-card">
+            <span><b>Lydknapper på</b></span>
+            <label class="switch"><input type="checkbox" id="f-audio-toggle" checked><span class="slider"></span></label>
+        </div>
+        <button class="btn-main" onclick="app.startFlash()">Start</button>
+    </div>
     <div id="f-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('flash')">Tilbake</button>
-        <div class="prog-container"><div class="prog-bar" id="f-prog"></div></div>
-        <div class="flash-container" id="f-container" onclick="this.classList.toggle('flipped')">
-            <div class="flash-inner">
-                <div class="flash-front"><span id="f-txt-w"></span><button class="speaker-btn" onclick="event.stopPropagation(); app.speakText(document.getElementById('f-txt-w').innerText, 'w')"><i class="fa-solid fa-volume-high"></i></button></div>
-                <div class="flash-back"><span id="f-txt-d"></span><button class="speaker-btn" onclick="event.stopPropagation(); app.speakText(document.getElementById('f-txt-d').innerText, 'd')"><i class="fa-solid fa-volume-high"></i></button></div>
+        <div class="prog-wrap"><div class="prog-fill" id="f-prog"></div></div>
+        <div class="f-container" onclick="app.flipFlash()">
+            <div class="f-inner" id="f-card">
+                <div class="f-front">
+                    <img id="f-img-front" style="width:180px; height:180px; object-fit:cover; border-radius:20px; margin-bottom:15px; display:none;">
+                    <h2 id="f-txt-front" style="font-size:2rem;"></h2>
+                    <button id="f-btn-speak-front" class="btn-sec" style="width:64px; height:64px; border-radius:50%; margin-top:15px;"><i class="fa-solid fa-volume-high"></i></button>
+                </div>
+                <div class="f-back">
+                    <h2 id="f-txt-back" style="font-size:2rem;"></h2>
+                    <button id="f-btn-speak-back" class="btn-sec" style="width:64px; height:64px; border-radius:50%; margin-top:15px;"><i class="fa-solid fa-volume-high"></i></button>
+                </div>
             </div>
         </div>
-        <div style="display:flex; gap:10px;"><button class="btn-main" style="flex:1" onclick="app.navFlash(-1)">Forrige</button><button class="btn-main" style="flex:1" onclick="app.navFlash(1)">Neste</button></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"><button class="btn-sec" onclick="app.navFlash(-1)">Forrige</button><button class="btn-sec" onclick="app.navFlash(1)">Neste</button></div>
+    </div>
+</div>
+
+<div id="p-match" class="page">
+    <div class="card" id="m-main"><h1>Match</h1><select id="s-match"></select><button class="btn-main" onclick="app.startMatch()">Start Spill</button></div>
+    <div id="m-game" style="display:none;">
+        <h2 id="m-timer" style="text-align:center; color:var(--accent); font-size:2.5rem; margin-bottom:20px; transition:0.2s;">0.0s</h2>
+        <div id="m-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+        <button class="btn-sec" style="margin-top:20px;" onclick="app.tab('match')">Avbryt</button>
     </div>
 </div>
 
 <div id="p-test" class="page">
-    <div class="card" id="t-main"><h2>Sluttest</h2><select id="s-test"></select><button class="btn-main" style="width:100%" onclick="app.startTest()">Generer Test</button></div>
-    <div id="t-game" style="display:none;">
-        <button class="btn-back" onclick="app.tab('test')">Tilbake</button><div id="t-list"></div><button class="btn-main" style="width:100%" id="t-submit" onclick="app.gradeTest()">Lever Test</button><button class="btn-sec" id="t-reload" style="display:none; margin-top:10px;" onclick="app.tab('test')">Ny Test</button>
-    </div>
+    <div class="card" id="t-main"><h1>Eksamen</h1><select id="s-test"></select><button class="btn-main" onclick="app.startTest()">Start Test</button></div>
+    <div id="t-game" style="display:none;"><div id="t-list"></div><button class="btn-main" id="t-submit-btn" onclick="app.gradeTest()">Lever Svar</button><button class="btn-sec" id="t-exit-btn" style="display:none;" onclick="app.tab('test')">Lukk Gjennomgang</button></div>
 </div>
 
 <script>
 const app = {
-    lib: JSON.parse(localStorage.getItem('ff_v44')) || {},
+    lib: JSON.parse(localStorage.getItem('ff_pro_v69')) || {}, 
     langs: [{n:'Norsk', c:'nb-NO'}, {n:'English', c:'en-US'}, {n:'Deutsch', c:'de-DE'}, {n:'Español', c:'es-ES'}, {n:'Français', c:'fr-FR'}],
-    mastType: 'd',
-    sprintIdx: 0,
-    sprintSize: 20,
+    tempI: null, activeSet: null, session: [], fIdx: 0, forceRetry: false, mSide: 'd', wrongList: [], mLocked: false, mTime: 0,
 
-    init() { this.fillLangDrops(); this.renderSets(); this.updateDrops(); document.addEventListener('keypress', e => { if(e.key==='Enter' && document.getElementById('ma-game').style.display==='block') this.checkMast(); }); },
-    save() { localStorage.setItem('ff_v44', JSON.stringify(this.lib)); this.renderSets(); this.updateDrops(); },
+    init() { this.fillDrops(); this.renderSets(); this.initAudioEvents(); },
+    save() { localStorage.setItem('ff_pro_v69', JSON.stringify(this.lib)); this.renderSets(); this.updateDrops(); },
     tab(id) {
-        clearInterval(this.timer); document.querySelectorAll('.page, .nav-btn').forEach(el => el.classList.remove('active'));
+        clearInterval(this.timer); this.mLocked = false;
+        document.querySelectorAll('.page, .nav-btn').forEach(el => el.classList.remove('active'));
         document.getElementById('p-'+id).classList.add('active');
-        const idx = {glossary:0, flash:1, match:2, mastery:3, test:4}[id];
-        if(document.querySelectorAll('.nav-btn')[idx]) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => { if(b.getAttribute('onclick').includes(id)) b.classList.add('active'); });
         ['f-game', 'm-game', 'ma-game', 't-game'].forEach(g => { if(document.getElementById(g)) document.getElementById(g).style.display = 'none'; });
         ['f-main', 'm-main', 'ma-main', 't-main'].forEach(m => { if(document.getElementById(m)) document.getElementById(m).style.display = 'block'; });
-    },
-
-    showBackup() {
-        this.modal(`<i class="fa-solid fa-cloud-arrow-up modal-icon" style="color:var(--accent)"></i>`, `<div class="modal-title">Backup & Import</div><div class="modal-desc">Lagre biblioteket ditt eller last opp en tidligere fil.</div><div id="drop-area" style="border:2px dashed #334155; border-radius:20px; padding:30px; margin-bottom:15px;" ondragover="event.preventDefault();" ondrop="app.handleDrop(event)"><p>Dra JSON hit</p><input type="file" id="file-in" style="display:none;" onchange="app.handleFile(this)"><button class="btn-sec" onclick="document.getElementById('file-in').click()" style="margin-top:10px;">Velg fil</button></div>`, `<button class="btn-main" style="width:100%; background:var(--success);" onclick="app.exportFile()">Last ned Backup</button><button class="btn-sec" onclick="app.closeM()">Avbryt</button>`);
-    },
-    handleDrop(e) { e.preventDefault(); if(e.dataTransfer.files[0]) this.readFile(e.dataTransfer.files[0]); },
-    handleFile(input) { if(input.files[0]) this.readFile(input.files[0]); },
-    readFile(file) { const r = new FileReader(); r.onload = (e) => { try { JSON.parse(e.target.result); localStorage.setItem('ff_v44', e.target.result); location.reload(); } catch(err){ alert("Ugyldig fil."); } }; r.readAsText(file); },
-    exportFile() { const blob = new Blob([JSON.stringify(this.lib, null, 2)], {type: 'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `FluentFly_v44.json`; a.click(); },
-
-    toggleMastMode() { const wrap = document.getElementById('ma-toggle-wrap'); this.mastType = (this.mastType === 'd') ? 'w' : 'd'; wrap.classList.toggle('switched'); document.getElementById('opt-d').classList.toggle('active'); document.getElementById('opt-w').classList.toggle('active'); },
-
-    confirmResetMastery() {
-        const s = document.getElementById('s-mast').value;
-        if(!s) return;
-        const totalScore = this.lib[s].words.reduce((acc, curr) => acc + (curr.s || 0), 0);
-        const totalPossible = this.lib[s].words.length * 3;
-        const perc = Math.floor((totalScore/totalPossible)*100) || 0;
-        this.modal(`<i class="fa-solid fa-triangle-exclamation modal-icon" style="color:var(--warning)"></i>`, 
-        `<div class="modal-title">Nullstille?</div><div class="modal-desc">Du har fullført <b>${perc}%</b> av <b>${s}</b>. Vil du slette all progresjon?</div>`, 
-        `<button class="btn-main" style="width:100%; background:var(--danger);" onclick="app.doResetMastery('${s}')">Ja, slett alt</button>
-         <button class="btn-sec" onclick="app.closeM()">Behold fremgang</button>`);
-    },
-    doResetMastery(s) {
-        this.lib[s].words.forEach(w => w.s = 0);
-        this.save();
         this.closeM();
-        if(document.getElementById('ma-game').style.display === 'block') this.tab('mastery');
     },
 
-    /* MASTERY LOGIC */
-    startMast() {
-        const s = document.getElementById('s-mast').value; if(!s) return;
-        this.activeSet = s;
-        this.sprintSize = parseInt(document.getElementById('s-sprint-size').value);
-        this.sprintIdx = 0; 
-        this.lib[s].words.forEach(w => { if(w.s === undefined) w.s = 0; });
-        document.getElementById('ma-main').style.display = 'none'; document.getElementById('ma-game').style.display = 'block';
-        this.startSprint();
+    toast(msg) { const t=document.getElementById('toast'); t.innerText=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',2500); },
+    modal(html) { document.getElementById('modal-content').innerHTML=html; document.getElementById('modal').style.display='flex'; },
+    closeM() { document.getElementById('modal').style.display='none'; },
+
+    /* BACKUP HUB */
+    showBackup() {
+        this.modal(`
+            <h2 style="margin-bottom:15px;">Data Management</h2>
+            <button class="btn-main" onclick="app.exportB()"><i class="fa-solid fa-download"></i> Backup (.json)</button>
+            <div class="dropzone" id="v65-drop" onclick="document.getElementById('bak-f').click()" ondragover="event.preventDefault()" ondrop="app.importDrop(event)">
+                <i class="fa-solid fa-file-import" style="font-size:1.5rem; margin-bottom:10px;"></i><br>
+                Klikk eller dra fil her for import
+                <input type="file" id="bak-f" style="display:none" onchange="app.importB(this)">
+            </div>
+            <button class="btn-sec" onclick="app.closeM()">Tilbake</button>
+        `);
     },
-    startSprint() {
-        this.mastPool = this.lib[this.activeSet].words.slice(this.sprintIdx, this.sprintIdx + this.sprintSize);
-        if(this.mastPool.length === 0) return this.showMastAnalysis();
+    exportB() {
+        const b = new Blob([JSON.stringify(this.lib)],{type:'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+        a.download = `Fly_Backup_v73.json`; a.click();
+    },
+    importDrop(e) { e.preventDefault(); if(e.dataTransfer.files[0]) this.importB({files: e.dataTransfer.files}); },
+    importB(inp) {
+        const r = new FileReader(); r.onload = (e) => { this.lib = JSON.parse(e.target.result); this.save(); location.reload(); };
+        r.readAsText(inp.files[0]);
+    },
+
+    /* IMAGE HANDLING */
+    dropI(e) { e.preventDefault(); if(e.dataTransfer.files[0]) this.handleI(e.dataTransfer.files[0]); },
+    handleI(file) {
+        const r = new FileReader();
+        r.onload = (e) => {
+            const img = new Image(); img.onload = () => {
+                const canvas = document.createElement('canvas'); const MAX = 400; const scale = MAX / img.width;
+                canvas.width = MAX; canvas.height = img.height * scale;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                this.tempI = canvas.toDataURL('image/jpeg', 0.7);
+                document.getElementById('img-prev').src = this.tempI;
+                document.getElementById('img-prev').style.display = 'block';
+                document.getElementById('img-hint').style.display = 'none';
+            }; img.src = e.target.result;
+        }; r.readAsDataURL(file);
+    },
+
+    /* MASTERY ENGINE */
+    confirmResetMast() {
+        const s = document.getElementById('s-mast').value; if(!s) return;
+        this.modal(`
+            <h2>Nullstill?</h2>
+            <p>Er du sikker på at du vil slette all fremgang for "${s}"?</p>
+            <button class="btn-main" style="background:var(--danger);" onclick="app.doResetMast('${s}')">Ja, slett alt</button>
+            <button class="btn-sec" onclick="app.closeM()">Avbryt</button>
+        `);
+    },
+    doResetMast(s) { this.lib[s].words.forEach(w => w.s = 0); this.save(); this.closeM(); this.toast("Nullstilt!"); },
+    
+    startMast() {
+        const s=document.getElementById('s-mast').value; if(!s || this.lib[s].words.length < 1) return;
+        this.activeSet=s; this.mSide = document.getElementById('ma-side-toggle').value;
+        this.useImg = document.getElementById('ma-img-toggle').checked;
+        this.wrongList = [];
+        
+        let pool = this.lib[s].words.filter(w => (w.s || 0) < 3);
+        if(!pool.length) {
+            this.modal(`<h1>Fullført! 🎉</h1><p>Du har mestret alle ordene i dette settet.</p>
+                <button class="btn-main" onclick="app.confirmResetMast()">Start forfra</button>
+                <button class="btn-sec" onclick="app.closeM()">Lukk</button>`);
+            return;
+        }
+        
+        this.session = pool.slice(0, 20).sort(() => 0.5 - Math.random());
+        document.getElementById('ma-main').style.display='none'; 
+        document.getElementById('ma-game').style.display='block';
         this.nextMast();
     },
     nextMast() {
-        const rem = this.mastPool.filter(i => i.s < 3); 
+        const rem = this.session.filter(w => (w.s || 0) < 3);
         if(!rem.length) {
-            // If there are more words in the library after this sprint
-            if(this.sprintIdx + this.sprintSize < this.lib[this.activeSet].words.length) {
-                this.modal(`<i class="fa-solid fa-circle-check modal-icon" style="color:var(--success)"></i>`, 
-                `<div class="modal-title">Bolk Ferdig!</div><div class="modal-desc">Du har mestret disse ordene. Klar for neste del?</div>`, 
-                `<button class='btn-main' style="width:100%" onclick='app.closeM(); app.sprintIdx += app.sprintSize; app.startSprint()'>Neste Bolk</button>
-                 <button class='btn-sec' onclick='app.closeM(); app.tab("mastery")'>Til Meny</button>`);
-            } else {
-                this.showMastAnalysis();
-            }
+            this.confetti();
+            const totalRemaining = this.lib[this.activeSet].words.filter(w => (w.s || 0) < 3).length;
+            let analysis = this.wrongList.length > 0 ? 
+                `<p style="margin:15px 0;">Fokusord:</p><div style="font-size:0.8rem; background:rgba(0,0,0,0.2); padding:15px; border-radius:15px; color:var(--text-dim); text-align:left;">${[...new Set(this.wrongList)].join(', ')}</div>` : 
+                `<p style="color:var(--success); font-weight:800;">Feilfri batch! Utmerket.</p>`;
+            
+            let btnHtml = totalRemaining > 0 ? 
+                `<button class="btn-main" onclick="app.startMast()">Fortsett (${totalRemaining} ord igjen)</button>` : 
+                `<h2 style="color:var(--success); margin-top:20px;">Settet er 100% fullført!</h2><button class="btn-main" onclick="app.confirmResetMast()">Start forfra</button>`;
+
+            this.modal(`
+                <h1 style="font-size:2.5rem;">Batch Ferdig!</h1>
+                ${analysis}
+                <div style="margin-top:25px; display:flex; flex-direction:column; gap:10px;">
+                    ${btnHtml}
+                    <button class="btn-sec" onclick="app.tab('mastery')">Til Meny</button>
+                </div>
+            `);
             return;
         }
         this.cur = rem[Math.floor(Math.random() * rem.length)];
-        const q = (this.mastType === 'w') ? this.cur.d : this.cur.w;
-        document.getElementById('ma-q').innerText = q; document.getElementById('ma-in').value = ''; document.getElementById('ma-f').innerText = '';
+        this.forceRetry = false;
+        document.getElementById('ma-img').src = this.cur.img || ""; 
+        document.getElementById('ma-img').style.display = (this.useImg && this.cur.img) ? 'block' : 'none';
+        document.getElementById('ma-q').innerText = this.mSide === 'd' ? (this.cur.w || "?") : this.cur.d;
+        document.getElementById('ma-in').value = ''; document.getElementById('ma-f').innerText = '';
         const dots = document.getElementById('ma-dots'); dots.innerHTML = '';
-        for(let i=0; i<3; i++) dots.innerHTML += `<div class="dot ${i < this.cur.s ? 'active' : ''}"></div>`;
-        const totalScore = this.lib[this.activeSet].words.reduce((acc, curr) => acc + (curr.s || 0), 0);
-        const totalPossible = this.lib[this.activeSet].words.length * 3;
-        document.getElementById('ma-prog').style.width = ((totalScore/totalPossible)*100) + '%';
-        this.speakText(q, this.mastType === 'w' ? 'd' : 'w'); document.getElementById('ma-in').focus();
+        for(let i=0; i<3; i++) dots.innerHTML += `<div class="m-dot ${(this.cur.s||0)>i?'active':''}"></div>`;
+        const pts = this.session.reduce((a,b) => a + (b.s||0), 0);
+        document.getElementById('ma-prog').style.width = (pts / (this.session.length * 3) * 100) + '%';
+        document.getElementById('ma-in').focus();
     },
     checkMast() {
         const val = document.getElementById('ma-in').value.trim().toLowerCase();
-        const ans = (this.mastType === 'w' ? this.cur.w : this.cur.d).toLowerCase();
-        if(val === ans) { this.cur.s++; this.save(); this.nextMast(); }
-        else { this.cur.s = 0; this.save(); document.getElementById('ma-f').innerText = "Fasit: " + ans; this.speakText(ans, this.mastType); }
-    },
-    showMastAnalysis() {
-        this.modal(`<i class="fa-solid fa-trophy modal-icon" style="color:#fbbf24"></i>`, 
-        `<div class="modal-title">100% Mestret!</div><div class="modal-desc">Gratulerer! Du har fullført hele settet <b>"${this.activeSet}"</b>. Hva vil du gjøre nå?</div>`, 
-        `<button class='btn-main' style="width:100%" onclick='app.closeM(); app.tab("mastery")'>Gå til Meny</button>
-         <button class='btn-sec' onclick='app.doResetMastery("${this.activeSet}")'>Start helt på nytt</button>`);
+        const cor = (this.mSide === 'd' ? this.cur.d : this.cur.w).toLowerCase();
+        if(val === cor) {
+            if(!this.forceRetry) this.cur.s = (this.cur.s || 0) + 1;
+            this.save(); this.nextMast();
+        } else {
+            this.forceRetry = true; this.wrongList.push(this.cur.w || this.cur.d);
+            document.getElementById('ma-f').innerText = "Riktig: " + cor;
+        }
     },
 
-    /* FLASHCARDS */
+    /* AUDIO & FLASHCARDS */
+    initAudioEvents() {
+        document.getElementById('f-btn-speak-front').onclick = (e) => {
+            e.stopPropagation();
+            const set = this.lib[this.activeSet];
+            this.speak(set.words[this.fIdx].w, set.langW);
+        };
+        document.getElementById('f-btn-speak-back').onclick = (e) => {
+            e.stopPropagation();
+            const set = this.lib[this.activeSet];
+            this.speak(set.words[this.fIdx].d, set.langD);
+        };
+    },
     startFlash() {
-        const s = document.getElementById('s-flash').value; if(!s) return;
-        this.activeSet = s; this.pool = [...this.lib[s].words].sort(() => 0.5 - Math.random());
-        this.fIdx = 0; document.getElementById('f-main').style.display = 'none'; document.getElementById('f-game').style.display = 'block';
-        this.drawFlash(true);
+        const s=document.getElementById('s-flash').value; if(!s || this.lib[s].words.length < 1) return;
+        this.activeSet=s; this.fIdx=0; 
+        document.getElementById('f-main').style.display='none'; document.getElementById('f-game').style.display='block';
+        this.drawFlash();
     },
-    drawFlash(isFirst) {
-        const container = document.getElementById('f-container');
-        if(!isFirst) container.classList.remove('flipped');
-        document.getElementById('f-prog').style.width = (((this.fIdx + 1) / this.pool.length) * 100) + '%';
-        setTimeout(() => {
-            document.getElementById('f-txt-w').innerText = this.pool[this.fIdx].w;
-            document.getElementById('f-txt-d').innerText = this.pool[this.fIdx].d;
-            if(!container.classList.contains('flipped')) this.speakText(this.pool[this.fIdx].w, 'w');
-        }, isFirst ? 0 : 150);
+    drawFlash() {
+        const cur=this.lib[this.activeSet].words[this.fIdx];
+        const audioOn = document.getElementById('f-audio-toggle').checked;
+        const cardEl = document.getElementById('f-card');
+        cardEl.classList.add('no-anim');
+        cardEl.classList.remove('flipped');
+        document.getElementById('f-txt-front').innerText=cur.w||"";
+        document.getElementById('f-img-front').src=cur.img||"";
+        document.getElementById('f-img-front').style.display=cur.img?'block':'none';
+        document.getElementById('f-txt-back').innerText=cur.d;
+        document.getElementById('f-btn-speak-front').style.display = (audioOn && cur.w) ? 'flex' : 'none';
+        document.getElementById('f-btn-speak-back').style.display = (audioOn && cur.d) ? 'flex' : 'none';
+        document.getElementById('f-prog').style.width=((this.fIdx+1)/this.lib[this.activeSet].words.length*100)+'%';
+        setTimeout(() => cardEl.classList.remove('no-anim'), 50);
     },
-    navFlash(d) { this.fIdx = (this.fIdx + d + this.pool.length) % this.pool.length; this.drawFlash(false); },
+    flipFlash(){ document.getElementById('f-card').classList.toggle('flipped'); },
+    navFlash(d){ const len=this.lib[this.activeSet].words.length; this.fIdx=(this.fIdx+d+len)%len; this.drawFlash(); },
+    speak(t,l){ window.speechSynthesis.cancel(); const m=new SpeechSynthesisUtterance(t); m.lang=l; window.speechSynthesis.speak(m); },
 
-    /* MATCH */
+    /* MATCH ENGINE - WITH PENALTY */
     startMatch() {
-        const s = document.getElementById('s-match').value; if(!s || this.lib[s].words.length < 3) return;
-        this.activeSet = s; document.getElementById('m-main').style.display = 'none'; document.getElementById('m-game').style.display = 'block';
-        let t = 0, count = 0, sel = null, lock = false, pens = 0; const grid = document.getElementById('m-grid'); grid.innerHTML = '';
-        this.timer = setInterval(() => { t += 0.1; document.getElementById('m-timer').innerText = t.toFixed(1)+'s'; }, 100);
-        let sub = [...this.lib[s].words].sort(() => .5 - Math.random()).slice(0, 6);
-        let cards = []; sub.forEach(x => { cards.push({t: x.w, id: x.w}); cards.push({t: x.d, id: x.w}); });
-        cards.sort(() => .5 - Math.random()).forEach(it => {
-            const d = document.createElement('div'); d.className = 'm-card'; d.innerText = it.t;
+        const s=document.getElementById('s-match').value; if(!s || this.lib[s].words.length < 5) {
+            this.toast("Settet må ha minst 5 ord for Match!");
+            return;
+        }
+        this.activeSet=s; this.closeM(); this.mLocked = false; this.mTime = 0;
+        document.getElementById('m-main').style.display='none'; document.getElementById('m-game').style.display='block';
+        let count=0, sel=null; clearInterval(this.timer);
+        
+        const timerEl = document.getElementById('m-timer');
+        timerEl.innerText = '0.0s';
+        this.timer = setInterval(() => { this.mTime += 0.1; timerEl.innerText = this.mTime.toFixed(1) + 's'; }, 100);
+        
+        const pool = [...this.lib[s].words].sort(() => 0.5 - Math.random()).slice(0, 5);
+        let cards = [];
+        pool.forEach(x => { cards.push({ v: x.w, img: x.img, id: x.d, type: 'q' }); cards.push({ v: x.d, id: x.d, type: 'a' }); });
+        cards.sort(() => 0.5 - Math.random());
+        
+        const grid = document.getElementById('m-grid'); grid.innerHTML = '';
+        cards.forEach(it => {
+            const d = document.createElement('div'); d.className = 'm-card';
+            d.innerHTML = (it.type === 'q' && it.img) ? `<img src="${it.img}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">` : `<b>${it.v || ''}</b>`;
             d.onclick = () => {
-                if(lock || d.classList.contains('fade-out') || d === sel?.el) return;
-                d.classList.add('selected');
-                if(!sel) sel = {el: d, id: it.id};
-                else {
+                if(this.mLocked || d.classList.contains('right') || d.classList.contains('wrong')) return;
+                d.style.borderColor = 'var(--accent)';
+                if(!sel) {
+                    sel = { el: d, id: it.id };
+                } else {
+                    if(sel.el === d) return;
                     if(sel.id === it.id) {
-                        d.classList.add('fade-out'); sel.el.classList.add('fade-out'); count++;
-                        if(count === sub.length) { clearInterval(this.timer); setTimeout(() => this.showMatchResults(t.toFixed(1), pens), 500); }
+                        d.classList.add('right'); sel.el.classList.add('right'); count++;
+                        sel = null;
+                        if(count === 5) {
+                            clearInterval(this.timer); this.confetti();
+                            this.modal(`
+                                <h1 style="color:var(--accent); font-size:3rem; margin-bottom:10px;"><i class="fa-solid fa-trophy"></i></h1>
+                                <h2 style="margin-bottom:5px;">Utmerket!</h2>
+                                <p style="font-size:1.2rem; font-weight:800; color:var(--text-dim); margin-bottom:25px;">Tid: ${this.mTime.toFixed(1)}s</p>
+                                <div style="display:grid; gap:10px;">
+                                    <button class="btn-main" onclick="app.startMatch()">Spill Igjen</button>
+                                    <button class="btn-sec" onclick="app.tab('match')">Lukk</button>
+                                </div>
+                            `); 
+                        }
                     } else {
-                        lock = true; t += 1.0; pens++; d.classList.add('wrong'); sel.el.classList.add('wrong');
-                        let p = sel.el; setTimeout(() => { d.classList.remove('wrong', 'selected'); p.classList.remove('wrong', 'selected'); lock = false; }, 400);
+                        // PENALTY LOGIC
+                        this.mLocked = true;
+                        this.mTime += 1.5; // ADD 1.5 SECONDS
+                        timerEl.classList.add('penalty');
+                        const originalTxt = timerEl.innerText;
+                        timerEl.innerText = "+1.5s";
+                        
+                        const first = sel.el;
+                        d.classList.add('wrong'); first.classList.add('wrong');
+                        
+                        setTimeout(() => {
+                            timerEl.classList.remove('penalty');
+                            d.classList.remove('wrong'); first.classList.remove('wrong');
+                            d.style.borderColor = ''; first.style.borderColor = '';
+                            sel = null; this.mLocked = false;
+                        }, 500);
                     }
-                    sel = null;
                 }
             }; grid.appendChild(d);
         });
     },
-    showMatchResults(time, pens) { 
-        this.modal(`<i class="fa-solid fa-stopwatch modal-icon" style="color:var(--accent)"></i>`, 
-        `<div class="modal-title">Match Fullført!</div><div class="big-stat">${time}s</div><div class="modal-desc">Inkludert ${pens} straff-sekunder.</div>`, 
-        `<button class='btn-main' style="width:100%" onclick='app.closeM(); app.startMatch()'>Spill Igjen</button><button class='btn-sec' onclick='app.closeM(); app.tab("match")'>Meny</button>`); 
-    },
 
-    /* TEST */
+    /* TEST ENGINE */
     startTest() {
-        const s = document.getElementById('s-test').value; if(!s || this.lib[s].words.length < 4) return;
-        this.activeSet = s; document.getElementById('t-main').style.display='none'; document.getElementById('t-game').style.display='block';
-        document.getElementById('t-submit').style.display='block'; document.getElementById('t-reload').style.display='none';
-        const list = document.getElementById('t-list'); list.innerHTML = '';
+        const s=document.getElementById('s-test').value; if(!s || this.lib[s].words.length < 5) return;
+        this.activeSet=s; document.getElementById('t-main').style.display='none'; document.getElementById('t-game').style.display='block';
+        document.getElementById('t-submit-btn').style.display='block'; document.getElementById('t-exit-btn').style.display='none';
+        const l = document.getElementById('t-list'); l.innerHTML = '';
         const words = [...this.lib[s].words].sort(() => 0.5 - Math.random());
-        words.forEach((it, idx) => {
-            const mode = idx % 4; const d = document.createElement('div'); d.className = 'q-box'; d.dataset.ans = it.d.toLowerCase(); d.dataset.type = mode;
-            if(mode === 0) { d.innerHTML = `<p><b>Hva betyr "${it.w}"?</b></p>`; let opts = [it.d]; while(opts.length < 4) { let r = words[Math.floor(Math.random()*words.length)].d; if(!opts.includes(r)) opts.push(r); } opts.sort(() => 0.5 - Math.random()).forEach(o => d.innerHTML += `<button class='opt-btn' onclick='app.sel(this)'>${o}</button>`); } 
-            else if(mode === 1) { const isT = Math.random() > 0.5; const fake = words.find(w => w.d !== it.d).d; d.dataset.isTrue = isT; d.innerHTML = `<p><b>"${it.w}" betyr "${isT ? it.d : fake}"?</b></p><div style='display:flex; gap:10px;'><button class='opt-btn' onclick='app.sel(this)' data-val='true'>Sant</button><button class='opt-btn' onclick='app.sel(this)' data-val='false'>Usant</button></div>`; } 
-            else if(mode === 2) { d.innerHTML = `<p><b>Skriv betydningen av "${it.w}":</b></p><input type="text" class="t-write-inp" placeholder="...">`; } 
-            else { d.innerHTML = `<p><b>Velg riktig ord for "${it.w}":</b></p><select class="t-match-select"><option value="">Velg...</option>${words.slice(0,5).map(w=>`<option value="${w.d}">${w.d}</option>`).join('')}</select>`; }
-            d.innerHTML += `<p style="color:var(--success); font-weight:bold; display:none; margin-top:8px;" class="feedback-text">Fasit: ${it.d}</p>`; list.appendChild(d);
+        words.forEach((w, i) => {
+            const type = i % 3; const box = document.createElement('div'); box.className = 'card t-q-card'; box.dataset.cor = w.d;
+            let h = `<p style="font-weight:800; color:var(--accent);">Oppgave ${i+1}</p>`;
+            if(type === 0) { 
+                h += `<p>Betydning?</p>${w.img ? `<img src="${w.img}" style="height:100px; border-radius:15px; margin:10px 0;">` : `<h3>${w.w}</h3>`}`;
+                const opts = [w.d, ...words.filter(x => x.d !== w.d).map(x => x.d)].slice(0, 4).sort(() => 0.5 - Math.random());
+                opts.forEach(o => h += `<button class="btn-sec t-opt" onclick="app.selT(this)" data-ans="${o}">${o}</button>`);
+            } else if(type === 1) { 
+                const isCorrect = Math.random() > 0.5; const displayAns = isCorrect ? w.d : words[Math.floor(Math.random()*words.length)].d;
+                box.dataset.cor = isCorrect ? "SANT" : "USANT";
+                h += `<p>Betyr dette "${displayAns}"?</p>${w.img ? `<img src="${w.img}" style="height:100px; border-radius:15px; margin:10px 0;">` : `<h3>${w.w}</h3>`}`;
+                h += `<button class="btn-sec t-opt" onclick="app.selT(this)" data-ans="SANT">SANT</button><button class="btn-sec t-opt" onclick="app.selT(this)" data-ans="USANT">USANT</button>`;
+            } else { 
+                h += `<p>Skriv:</p>${w.img ? `<img src="${w.img}" style="height:100px; border-radius:15px; margin:10px 0;">` : `<h3>${w.w}</h3>`}`;
+                h += `<input type="text" class="t-wr" placeholder="..." data-cor="${w.d}">`;
+            }
+            box.innerHTML = h; l.appendChild(box);
         });
     },
-    sel(b) { b.parentElement.querySelectorAll('.opt-btn').forEach(x => x.classList.remove('selected')); b.classList.add('selected'); },
+    selT(b){ b.parentElement.querySelectorAll('.t-opt').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); },
     gradeTest() {
-        let score = 0; const boxes = document.querySelectorAll('.q-box');
-        boxes.forEach(box => {
-            let ok = false; const type = parseInt(box.dataset.type);
-            if(type === 0) { const s = box.querySelector('.opt-btn.selected'); if(s && s.innerText.toLowerCase() === box.dataset.ans) ok = true; } 
-            else if(type === 1) { const s = box.querySelector('.opt-btn.selected'); const isT = box.dataset.isTrue === 'true'; if(s && s.dataset.val === (isT ? 'true' : 'false')) ok = true; } 
-            else if(type === 2) { if(box.querySelector('.t-write-inp').value.trim().toLowerCase() === box.dataset.ans) ok = true; } 
-            else if(type === 3) { if(box.querySelector('.t-match-select').value.toLowerCase() === box.dataset.ans) ok = true; }
-            if(ok) { score++; box.classList.add('correct'); } else { box.classList.add('wrong'); box.querySelector('.feedback-text').style.display='block'; }
+        let c = 0, total = 0;
+        document.querySelectorAll('#t-list .t-q-card').forEach(q => {
+            total++; const sel = q.querySelector('.t-opt.selected'); const wr = q.querySelector('.t-wr');
+            let isCorrect = false; let cor = q.dataset.cor;
+            if(sel) isCorrect = (sel.dataset.ans === cor); else if(wr) isCorrect = (wr.value.trim().toLowerCase() === cor.toLowerCase());
+            if(isCorrect) { c++; q.classList.add('correct'); } else { q.classList.add('incorrect'); q.innerHTML += `<p style="font-size:0.75rem; color:var(--success); font-weight:700;">Riktig: ${cor}</p>`; }
         });
-        document.getElementById('t-submit').style.display='none'; document.getElementById('t-reload').style.display='block';
-        this.modal(`<i class="fa-solid fa-graduation-cap modal-icon" style="color:var(--accent)"></i>`, `<div class="modal-title">Test Fullført</div><div class="big-stat">${score}/${boxes.length}</div><div class="modal-desc">Se gjennom svarene dine på siden.</div>`);
+        document.getElementById('t-submit-btn').style.display='none'; document.getElementById('t-exit-btn').style.display='block';
+        this.modal(`<h1>Resultat: ${Math.round(c/total*100)}%</h1><button class="btn-main" onclick="app.closeM()">Gå gjennom</button>`);
     },
 
-    speakText(text, type) { speechSynthesis.cancel(); const msg = new SpeechSynthesisUtterance(text); const set = this.lib[this.activeSet]; msg.lang = (type === 'w') ? (set?.langW || 'en-US') : (set?.langD || 'nb-NO'); msg.rate = 0.95; speechSynthesis.speak(msg); },
-    fillLangDrops() { const w = document.getElementById('lang-w'), d = document.getElementById('lang-d'); this.langs.forEach(l => { w.innerHTML += `<option value="${l.c}">${l.n}</option>`; d.innerHTML += `<option value="${l.c}">${l.n}</option>`; }); },
-    renderSets() { const list = document.getElementById('set-list'); list.innerHTML = ''; Object.keys(this.lib).forEach(k => { list.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; cursor:pointer;" onclick="app.openSet('${k}')"><b>${k}</b><span>${this.lib[k].words.length} <i class="fa-solid fa-chevron-right"></i></span></div>`; }); },
-    updateDrops() { ['s-flash','s-match','s-mast','s-test'].forEach(id => { const el = document.getElementById(id); if(el){ el.innerHTML='<option value="">Velg sett...</option>'; Object.keys(this.lib).forEach(k => el.innerHTML+=`<option value="${k}">${k}</option>`); } }); },
-    addSet() { const n = document.getElementById('set-name').value.trim(); if(n){ this.lib[n]={words:[], langW:'en-US', langD:'nb-NO'}; this.save(); } },
-    openSet(name) { this.activeSet = name; document.getElementById('editor').style.display='block'; document.getElementById('edit-title').innerText=name; document.getElementById('lang-w').value=this.lib[name].langW; document.getElementById('lang-d').value=this.lib[name].langD; this.renderWords(); },
-    saveLang() { this.lib[this.activeSet].langW = document.getElementById('lang-w').value; this.lib[this.activeSet].langD = document.getElementById('lang-d').value; this.save(); },
-    addWord() { const w=document.getElementById('w-in').value.trim(), d=document.getElementById('d-in').value.trim(); if(w&&d){ this.lib[this.activeSet].words.push({w,d,s:0}); this.save(); this.renderWords(); document.getElementById('w-in').value=''; document.getElementById('d-in').value=''; document.getElementById('w-in').focus(); } },
-    renderWords() { const list = document.getElementById('word-list'); list.innerHTML = ''; this.lib[this.activeSet].words.forEach((it, i) => { list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #334155; display:flex; justify-content:space-between; font-size:0.9rem;"><span><b>${it.w}</b>: ${it.d}</span><i class="fa-solid fa-trash" style="color:var(--danger)" onclick="app.lib['${app.activeSet}'].words.splice(${i},1); app.save(); app.renderWords();"></i></div>`; }); },
-    modal(iconHTML, contentHTML, buttonsHTML = `<button class="btn-main" style="width:100%" onclick="app.closeM()">Lukk</button>`) { 
-        document.getElementById('modal-content').innerHTML = `${iconHTML}<div>${contentHTML}</div><div style="margin-top:20px;">${buttonsHTML}</div>`; 
-        document.getElementById('modal').style.display='flex'; 
+    /* GLOSSARY UTILS */
+    addSet(){ const n=document.getElementById('set-name').value; if(n){ this.lib[n]={words:[], langW:'nb-NO', langD:'en-US'}; this.save(); document.getElementById('set-name').value=''; } },
+    openSet(n){ this.activeSet=n; document.getElementById('editor').style.display='block'; document.getElementById('edit-title').innerText=n; 
+                document.getElementById('lang-w').value = this.lib[n].langW; document.getElementById('lang-d').value = this.lib[n].langD; this.renderWords(); },
+    saveLang(){ if(this.activeSet){ this.lib[this.activeSet].langW = document.getElementById('lang-w').value; this.lib[this.activeSet].langD = document.getElementById('lang-d').value; this.save(); } },
+    addWord(){
+        const w=document.getElementById('w-in').value, d=document.getElementById('d-in').value; if(!d && !this.tempI) return;
+        this.lib[this.activeSet].words.push({w, d, img:this.tempI, s:0});
+        this.tempI=null; document.getElementById('w-in').value=''; document.getElementById('d-in').value='';
+        document.getElementById('img-prev').style.display='none'; document.getElementById('img-hint').style.display='block';
+        this.save(); this.renderWords();
     },
-    closeM() { document.getElementById('modal').style.display='none'; }
+    renderWords(){
+        const l=document.getElementById('word-list'); l.innerHTML='';
+        this.lib[this.activeSet].words.forEach((it,i)=>{
+            l.innerHTML+=`<div style="padding:15px; border-bottom:1px solid #242b3d; display:flex; justify-content:space-between; align-items:center;">
+                <span>${it.img?'<i class="fa-regular fa-image" style="color:var(--accent); margin-right:8px;"></i>':''}<b>${it.w || ''}</b>${it.w && it.d ? ': ' : ''}${it.d || ''}</span>
+                <i class="fa-solid fa-trash" style="color:var(--danger); cursor:pointer;" onclick="app.lib['${app.activeSet}'].words.splice(${i},1); app.save(); app.renderWords();"></i>
+            </div>`;
+        });
+    },
+    renderSets(){
+        const l=document.getElementById('set-list'); l.innerHTML='';
+        Object.keys(this.lib).forEach(k=>{
+            l.innerHTML+=`<div class="card" style="padding:20px; display:flex; justify-content:space-between; cursor:pointer;" onclick="app.openSet('${k}')"><b>${k}</b><span>${this.lib[k].words.length} <i class="fa-solid fa-chevron-right"></i></span></div>`;
+        });
+    },
+    fillDrops(){ ['s-flash','s-match','s-mast','s-test'].forEach(id=>{ const el=document.getElementById(id); if(el){el.innerHTML='<option value="">Velg sett...</option>'; Object.keys(this.lib).forEach(k=>el.innerHTML+=`<option value="${k}">${k}</option>`);} }); [document.getElementById('lang-w'),document.getElementById('lang-d')].forEach(d=>{ if(d){d.innerHTML=''; this.langs.forEach(l=>d.innerHTML+=`<option value="${l.c}">${l.n}</option>`);} }); },
+    updateDrops(){ this.fillDrops(); },
+    confetti() { for(let i=0; i<50; i++){ const c = document.createElement('div'); c.className='confetti'; c.style.left = Math.random()*100+'vw'; c.style.background = `hsl(${Math.random()*360}, 100%, 50%)`; c.style.animation = `fall ${1.5+Math.random()}s linear forwards`; document.body.appendChild(c); setTimeout(()=>c.remove(), 2000); } }
 };
-window.onload = () => app.init();
+window.onload=()=>app.init();
 </script>
 </body>
 </html>
